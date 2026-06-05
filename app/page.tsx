@@ -35,7 +35,251 @@ const content = {
   },
 };
 
-const NAV_HREFS = ["#top", "#concept", "#", "#", "/booking", "#"];
+const NAV_HREFS = ["#top", "#concept", "#menu", "#", "/booking", "#"];
+
+// ---------------------------------------------------------------------------
+// Menu data & types
+// ---------------------------------------------------------------------------
+type MenuItem = { name: string; price: number };
+type Subgroup = { label: string; items: MenuItem[] };
+type MenuCategory = {
+  category: string;
+  categoryZh: string;
+  items?: MenuItem[];
+  subgroups?: Subgroup[];
+};
+
+const MENU_DATA: MenuCategory[] = [
+  {
+    category: "Espresso & Coffee",
+    categoryZh: "浓缩咖啡",
+    items: [
+      { name: "Espresso", price: 2.99 },
+      { name: "Single Shot Espresso", price: 1.50 },
+      { name: "Double Shots Espresso", price: 2.99 },
+      { name: "Americano", price: 3.99 },
+      { name: "Cappuccino", price: 5.49 },
+      { name: "Coffee Latte", price: 5.49 },
+      { name: "Vanilla Latte", price: 6.99 },
+      { name: "Pumpkin Spice Latte", price: 6.99 },
+      { name: "Hot Pumpkin Spice Latte", price: 6.99 },
+      { name: "Iced Pumpkin Spice Latte", price: 6.99 },
+      { name: "Coconut Espresso", price: 6.99 },
+      { name: "Osmanthus Oolong Coffee Latte", price: 6.99 },
+      { name: "Sicilian-inspired Citrus Espresso", price: 6.99 },
+      { name: "Peachy Oolong Americano", price: 6.99 },
+      { name: "Espresso Tonic", price: 6.99 },
+    ],
+  },
+  {
+    category: "Matcha",
+    categoryZh: "抹茶",
+    subgroups: [
+      {
+        label: "Hot",
+        items: [
+          { name: "Hot Matcha Latte", price: 7.79 },
+          { name: "Hot Black Sesame Matcha", price: 7.79 },
+          { name: "Coconut Matcha", price: 7.79 },
+        ],
+      },
+      {
+        label: "Iced",
+        items: [
+          { name: "Iced Matcha Latte", price: 7.79 },
+          { name: "Iced Strawberry Matcha Latte", price: 7.79 },
+          { name: "Iced Coconut Matcha", price: 7.79 },
+          { name: "Iced Ube Matcha Latte", price: 6.99 },
+          { name: "Iced Black Sesame Matcha", price: 7.79 },
+          { name: "Iced Matcha Cloud", price: 7.79 },
+          { name: "Matcha Latte", price: 7.79 },
+          { name: "Black Sesame Matcha", price: 7.79 },
+          { name: "Matcha Cloud", price: 6.99 },
+          { name: "Matcha Yuzu", price: 7.79 },
+          { name: "Matcha Tonic", price: 6.99 },
+          { name: "Blueberry Yuzu Matcha Tonic", price: 7.79 },
+          { name: "Iced Matcha Yuzu Fizz", price: 7.79 },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Hojicha",
+    categoryZh: "焙茶",
+    subgroups: [
+      {
+        label: "Hot",
+        items: [
+          { name: "Hot Hojicha Latte", price: 7.79 },
+          { name: "Hot Black Sesame Hojicha", price: 7.79 },
+          { name: "Hot Pumpkin Spice Hojicha Latte", price: 6.99 },
+        ],
+      },
+      {
+        label: "Iced",
+        items: [
+          { name: "Iced Hojicha Latte", price: 7.79 },
+          { name: "Iced Black Sesame Hojicha", price: 7.79 },
+          { name: "Iced Pumpkin Spice Hojicha Latte", price: 6.99 },
+          { name: "Black Sesame Hojicha", price: 7.79 },
+        ],
+      },
+    ],
+  },
+  {
+    category: "Oolong & Green Tea",
+    categoryZh: "乌龙与绿茶",
+    items: [
+      { name: "Iced Orange Peachy Oolong", price: 6.99 },
+      { name: "Hot Orange Peachy Oolong", price: 6.99 },
+      { name: "Iced Peachy Oolong Milk Tea", price: 6.99 },
+      { name: "Osmanthus Oolong Cloud", price: 6.99 },
+      { name: "Iced Yuzu Passionfruit Green Tea", price: 6.99 },
+      { name: "Hot Yuzu Passionfruit Green Tea", price: 6.99 },
+      { name: "Hot Jasmine Tropical Infusion", price: 6.99 },
+    ],
+  },
+  {
+    category: "Specialty Lattes & Others",
+    categoryZh: "特色拿铁",
+    items: [
+      { name: "Black Sesame Latte", price: 6.99 },
+      { name: "Blueberry Cloud Latte", price: 6.99 },
+      { name: "Iced Ube Matcha Latte", price: 6.99 },
+    ],
+  },
+  {
+    category: "Pastries",
+    categoryZh: "糕点",
+    items: [
+      { name: "Apple Pastry", price: 5.99 },
+      { name: "Pear Pastry", price: 5.99 },
+      { name: "Orange Pastry", price: 5.99 },
+      { name: "Starlight Pastry", price: 5.99 },
+      { name: "Flower Pastry", price: 5.99 },
+      { name: "Magnolia Pastry", price: 5.99 },
+      { name: "Peanut Pastry", price: 5.99 },
+      { name: "Sesame Pocket", price: 2.99 },
+    ],
+  },
+  {
+    category: "Desserts & Sweets",
+    categoryZh: "甜点",
+    items: [
+      { name: "Matcha Basque Cheesecake", price: 6.99 },
+      { name: "Egg Tart", price: 5.99 },
+      { name: "Dubai Chocolate Mochi", price: 5.99 },
+      { name: "Tea Chocolate", price: 39.00 },
+    ],
+  },
+  {
+    category: "Merchandise & Products",
+    categoryZh: "周边产品",
+    items: [
+      { name: "Hojicha Powder 80g", price: 30.00 },
+      { name: "Oolong Tea Lover 5g x 8 bags", price: 52.00 },
+      { name: "Yashi Flavour Oolong 50g", price: 49.00 },
+      { name: "Teamendous Bamboo Thermos Bottle", price: 29.00 },
+      { name: "Tea Ware Pouch", price: 25.00 },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// MenuSection component
+// ---------------------------------------------------------------------------
+function MenuSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
+
+  const itemCount = (cat: MenuCategory) =>
+    cat.items?.length ?? cat.subgroups?.reduce((s, g) => s + g.items.length, 0) ?? 0;
+
+  return (
+    <section id="menu" className="w-screen min-h-screen bg-black py-24 pb-32">
+      <p className="text-[#4a9e8e] text-xs tracking-[0.3em] text-center mb-20">茶饮菜单</p>
+
+      <div className="max-w-3xl mx-auto px-8">
+        {MENU_DATA.map((cat, i) => {
+          const isOpen = openIndex === i;
+          return (
+            <div key={cat.category} className="border-b border-[#1a1a1a]">
+              {/* Category row */}
+              <button
+                onClick={() => toggle(i)}
+                className="w-full flex items-center justify-between py-5 text-left group"
+              >
+                <div className="flex items-baseline gap-3">
+                  <span className="text-white text-sm tracking-widest uppercase">
+                    {cat.category}
+                  </span>
+                  <span className="text-[#444444] text-xs" style={{ fontFamily: "serif" }}>
+                    {cat.categoryZh}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-[#444444] text-[10px] tracking-widest uppercase">
+                  <span>{itemCount(cat)} items</span>
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                  >
+                    <path d="M2 3.5l3 3 3-3" />
+                  </svg>
+                </div>
+              </button>
+
+              {/* Expanded items */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="pb-4">
+                  {/* Flat items list */}
+                  {cat.items?.map((item) => (
+                    <div
+                      key={item.name}
+                      className="flex items-center justify-between py-3 border-b border-[#111111]"
+                    >
+                      <span className="text-white/80 text-xs">{item.name}</span>
+                      <span className="text-[#666666] text-xs">${item.price.toFixed(2)}</span>
+                    </div>
+                  ))}
+
+                  {/* Subgrouped items */}
+                  {cat.subgroups?.map((sg) => (
+                    <div key={sg.label}>
+                      <p className="text-[#4a9e8e] text-[10px] tracking-[0.25em] uppercase pt-5 pb-2">
+                        {sg.label}
+                      </p>
+                      {sg.items.map((item) => (
+                        <div
+                          key={item.name}
+                          className="flex items-center justify-between py-3 border-b border-[#111111]"
+                        >
+                          <span className="text-white/80 text-xs">{item.name}</span>
+                          <span className="text-[#666666] text-xs">${item.price.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   const [lang, setLang] = useState<"en" | "zh">("en");
@@ -135,6 +379,9 @@ export default function Home() {
         </div>
 
       </section>
+
+      {/* ── Section 3: Menu ─────────────────────────────────────────── */}
+      <MenuSection />
 
       {/* ── Fixed bottom nav bar ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 border-t border-white/10 bg-black/20 backdrop-blur-sm">
