@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { ReservationsSection } from "./booking/page";
 
 const content = {
   en: {
@@ -35,7 +36,7 @@ const content = {
   },
 };
 
-const NAV_HREFS = ["#top", "#concept", "#menu", "#", "/booking", "#"];
+const NAV_HREFS = ["#top", "#concept", "#menu", "#", "#reservations", "#location"];
 
 // ---------------------------------------------------------------------------
 // Menu data & types
@@ -211,7 +212,7 @@ function MenuSection() {
                 className="w-full flex items-center justify-between py-5 text-left group"
               >
                 <div className="flex items-baseline gap-3">
-                  <span className="text-white text-sm tracking-widest uppercase">
+                  <span className="font-monument text-white text-sm tracking-widest uppercase">
                     {cat.category}
                   </span>
                   <span className="text-[#444444] text-xs" style={{ fontFamily: "serif" }}>
@@ -290,27 +291,26 @@ export default function Home() {
       {/* ── Section 1: Hero ─────────────────────────────────────────── */}
       <section id="top" className="relative w-screen h-screen overflow-hidden bg-black">
 
-        {/* Background image */}
-        <Image
-          src="/hero.avif"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-        />
+        {/* Background video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/hero.mp4" type="video/mp4" />
+        </video>
 
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/40" />
 
         {/* Top left: Logo block */}
         <div className="absolute top-8 left-10 z-10 flex flex-col gap-1">
-          <span
-            className="text-white text-sm tracking-widest uppercase font-semibold"
-            style={{ fontVariant: "small-caps" }}
-          >
+          <span className="font-monument text-white text-3xl tracking-widest uppercase font-semibold">
             {t.logo}
           </span>
-          <span className="text-white/60 text-xs tracking-wide" style={{ fontFamily: "serif" }}>
+          <span className="font-monument text-white/70 text-xs tracking-wide opacity-70">
             {t.logoSub}
           </span>
           {/* Teal leaf/teardrop icon */}
@@ -323,19 +323,19 @@ export default function Home() {
         <div className="absolute bottom-20 left-10 z-10">
           <div className="flex gap-4 mb-4">
             <div
-              className="text-white text-2xl leading-snug tracking-widest"
+              className="text-white text-4xl leading-normal tracking-widest"
               style={{ fontFamily: "serif", writingMode: "vertical-rl", textOrientation: "upright" }}
             >
               六时之间
             </div>
             <div
-              className="text-white text-2xl leading-snug tracking-widest"
+              className="text-white text-4xl leading-normal tracking-widest"
               style={{ fontFamily: "serif", writingMode: "vertical-rl", textOrientation: "upright" }}
             >
               一盏清茗
             </div>
           </div>
-          <p className="text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-3">
+          <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.4em] uppercase mb-3">
             {t.tagline}
           </p>
           <div className="w-12 h-px bg-white opacity-50" />
@@ -359,13 +359,10 @@ export default function Home() {
 
         {/* Centered content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-8 text-center pb-16">
-          <h2
-            className="text-white text-4xl md:text-5xl font-bold tracking-widest uppercase mb-4"
-            style={{ fontFamily: "'Georgia', serif" }}
-          >
+          <h2 className="font-monument text-white text-4xl md:text-5xl font-bold tracking-widest uppercase mb-4">
             {t.conceptTitle}
           </h2>
-          <p className="text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-14">
+          <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-14">
             {t.conceptSub}
           </p>
 
@@ -383,6 +380,100 @@ export default function Home() {
       {/* ── Section 3: Menu ─────────────────────────────────────────── */}
       <MenuSection />
 
+      {/* ── Section 4: Reservations ─────────────────────────────────── */}
+      <div id="reservations">
+        <ReservationsSection />
+      </div>
+
+      {/* ── Section 5: Location ─────────────────────────────────────── */}
+      <section id="location" className="w-screen min-h-screen bg-black text-white py-24 pb-32">
+        {/* Header */}
+        <div className="text-center mb-2">
+          <h2 className="font-monument text-white text-4xl md:text-5xl font-bold tracking-widest uppercase mb-4">
+            Location
+          </h2>
+          <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase">
+            Our Store
+          </p>
+        </div>
+
+        {/* Two-column content */}
+        <div className="max-w-3xl mx-auto px-8 grid grid-cols-2 gap-16 mt-20">
+
+          {/* Left: store info */}
+          <div>
+            <p className="text-[#444444] text-[10px] tracking-widest uppercase mb-3">(Toronto)</p>
+            <p className="font-monument text-white text-xl mb-1">TEAMENDOUS Toronto</p>
+            <p className="text-[#444444] text-[10px] tracking-widest mb-6">TEAMENDOUS · Toronto</p>
+
+            <p className="text-white text-sm">10 Karl Fraser Rd,</p>
+            <p className="text-white text-sm mb-6">North York, ON M3C 0E9</p>
+
+            <div className="flex flex-col gap-3 mb-8">
+              {/* Email */}
+              <a href="mailto:hello@teamendous.tea" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M2 7l10 7 10-7" />
+                </svg>
+                hello@teamendous.tea
+              </a>
+              {/* Phone */}
+              <a href="tel:+14165468800" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5 5l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 14.92z" />
+                </svg>
+                +1 (416) 546-8800
+              </a>
+              {/* Instagram */}
+              <a href="https://instagram.com/teamendous.toronto" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
+                </svg>
+                @teamendous.toronto
+              </a>
+            </div>
+
+            {/* Google Maps */}
+            <a
+              href="https://maps.google.com/?q=10+Karl+Fraser+Rd+North+York+ON+M3C+0E9"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-white text-sm hover:text-[#4a9e8e] transition-colors"
+            >
+              Google Maps
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
+          </div>
+
+          {/* Right: hours */}
+          <div>
+            <p className="text-[#444444] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
+            {[
+              { day: "MON", hours: "Closed", closed: true },
+              { day: "TUE", hours: "12PM – 10PM", closed: false },
+              { day: "WED", hours: "12PM – 11PM", closed: false },
+              { day: "THU", hours: "12PM – 11PM", closed: false },
+              { day: "FRI", hours: "12PM – 12AM", closed: false },
+              { day: "SAT", hours: "12PM – 12AM", closed: false },
+              { day: "SUN", hours: "Closed", closed: true },
+            ].map(({ day, hours, closed }) => (
+              <div key={day} className="flex items-center justify-between py-3 border-b border-[#111111]">
+                <span className="text-[#444444] text-xs tracking-widest">{day}</span>
+                <span className={`text-xs ${closed ? "text-[#444444]" : "text-white"}`}>{hours}</span>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
       {/* ── Fixed bottom nav bar ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 border-t border-white/10 bg-black/20 backdrop-blur-sm">
         {/* Left: nav links */}
@@ -393,7 +484,7 @@ export default function Home() {
               <Link
                 key={i}
                 href={href}
-                className="text-white/70 text-[10px] tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
+                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
               >
                 {label}
               </Link>
@@ -401,7 +492,7 @@ export default function Home() {
               <a
                 key={i}
                 href={href}
-                className="text-white/70 text-[10px] tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
+                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
               >
                 {label}
               </a>

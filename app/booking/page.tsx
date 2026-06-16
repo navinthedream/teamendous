@@ -2,6 +2,9 @@
 
 import { useState, useCallback } from "react";
 
+// ---------------------------------------------------------------------------
+// Cal.com config
+// ---------------------------------------------------------------------------
 const CAL_USERNAME = "navin-pandey-scvuvp";
 const CAL_EVENT_SLUG = "30min";
 const API_KEY = process.env.NEXT_PUBLIC_CAL_API_KEY ?? "";
@@ -9,11 +12,13 @@ const EVENT_TYPE_ID = 5673722;
 const CAL_API_BASE = "https://api.cal.com/v2";
 const SLOTS_API_VERSION = "2024-09-04";
 const BOOKINGS_API_VERSION = "2024-08-13";
-const FIXED_SLOT_HOURS = [10, 14];
 
 const DOW_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
@@ -37,6 +42,9 @@ function calcTotal(guests: number): number {
   return guests <= 2 ? 49 : 49 + (guests - 2) * 20;
 }
 
+// ---------------------------------------------------------------------------
+// API calls
+// ---------------------------------------------------------------------------
 async function fetchAvailableSlots(date: Date): Promise<string[]> {
   const endDate = new Date(date);
   endDate.setDate(endDate.getDate() + 1);
@@ -45,7 +53,7 @@ async function fetchAvailableSlots(date: Date): Promise<string[]> {
   if (!res.ok) throw new Error(`Failed to load slots (${res.status})`);
   const json = await res.json();
   const slots: { start: string }[] = json?.data?.[toDateString(date)] ?? [];
-  return slots.map((s) => s.start).filter((iso) => FIXED_SLOT_HOURS.includes(new Date(iso).getHours()));
+  return slots.map((s) => s.start);
 }
 
 async function submitBooking(slot: string, name: string, email: string): Promise<void> {
@@ -61,6 +69,9 @@ async function submitBooking(slot: string, name: string, email: string): Promise
   }
 }
 
+// ---------------------------------------------------------------------------
+// Shared sub-components
+// ---------------------------------------------------------------------------
 function Section({ children, center = false }: { children: React.ReactNode; center?: boolean }) {
   return (
     <div className="w-full border-t border-[#1a1a1a]">
@@ -73,13 +84,16 @@ function Section({ children, center = false }: { children: React.ReactNode; cent
 
 function SectionLabel({ number, text }: { number: number; text: string }) {
   return (
-    <p className="text-[#444444] text-[11px] tracking-[0.25em] uppercase mb-8">
+    <p className="font-monument text-[#444444] text-[11px] tracking-[0.25em] uppercase mb-8">
       {number}. {text}
     </p>
   );
 }
 
-export default function BookingPage() {
+// ---------------------------------------------------------------------------
+// ReservationsSection — reusable, no <main> wrapper
+// ---------------------------------------------------------------------------
+export function ReservationsSection() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const minDate = new Date(today);
@@ -128,12 +142,12 @@ export default function BookingPage() {
   const total = calcTotal(guestCount);
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <div className="bg-black text-white">
 
       {/* Hero */}
       <Section center>
-        <p className="text-[#4a9e8e] text-[11px] tracking-[0.3em] uppercase mb-6">Book Your Experience</p>
-        <h1 className="text-white text-5xl md:text-7xl font-bold mb-6" style={{ fontFamily: "'Georgia', serif", letterSpacing: "-0.02em" }}>
+        <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.3em] uppercase mb-6">Book Your Experience</p>
+        <h1 className="font-monument text-white text-5xl md:text-7xl font-bold mb-6" style={{ letterSpacing: "-0.02em" }}>
           Reservations
         </h1>
         <p className="text-[#555555] text-sm leading-relaxed">
@@ -149,8 +163,8 @@ export default function BookingPage() {
             onClick={() => { setSelectedExperience("tea-gathering"); setSelectedDate(null); setSelectedSlot(null); setSlots([]); }}
             className={`text-left p-6 border transition-colors duration-200 ${selectedExperience === "tea-gathering" ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
           >
-            <p className="text-white text-base font-semibold mb-1" style={{ fontFamily: "'Georgia', serif" }}>Tea Gathering</p>
-            <p className="text-[#4a9e8e] text-sm mb-4" style={{ fontFamily: "'Georgia', serif" }}>围炉小聚</p>
+            <p className="font-monument text-white text-base font-semibold mb-1">Tea Gathering</p>
+            <p className="font-monument text-[#4a9e8e] text-sm mb-4">围炉小聚</p>
             <p className="text-[#555555] text-xs leading-relaxed mb-8">An intimate tea ceremony experience with seasonal snacks and a cozy roasting table.</p>
             <div className="flex items-center justify-between">
               <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">2 hours</span>
@@ -159,7 +173,7 @@ export default function BookingPage() {
           </button>
 
           <div className="text-left p-6 border border-[#1a1a1a] opacity-30 cursor-not-allowed select-none">
-            <p className="text-[#444444] text-base font-semibold mb-1" style={{ fontFamily: "'Georgia', serif" }}>Coming Soon</p>
+            <p className="font-monument text-[#444444] text-base font-semibold mb-1">Coming Soon</p>
             <p className="text-[#333333] text-sm mb-4">&nbsp;</p>
             <p className="text-[#333333] text-xs leading-relaxed mb-8">More experiences coming soon.</p>
             <div className="flex items-center justify-between">
@@ -283,8 +297,8 @@ export default function BookingPage() {
       {/* Confirmation */}
       {confirmed && selectedDate && selectedSlot && (
         <Section>
-          <p className="text-[#4a9e8e] text-[11px] tracking-[0.25em] uppercase mb-6">Reservation Received</p>
-          <p className="text-white text-2xl font-light mb-10" style={{ fontFamily: "'Georgia', serif" }}>
+          <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.25em] uppercase mb-6">Reservation Received</p>
+          <p className="font-monument text-white text-2xl font-light mb-10">
             We&apos;ll see you soon, {name.split(" ")[0]}.
           </p>
           <div className="border-t border-[#1a1a1a] pt-6 space-y-4 mb-8 w-full max-w-sm">
@@ -300,7 +314,7 @@ export default function BookingPage() {
             </div>
           </div>
           <div className="border border-[#1a1a1a] p-6 mb-8 w-full max-w-sm">
-            <p className="text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Complete Your Reservation</p>
+            <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Complete Your Reservation</p>
             <p className="text-[#555555] text-xs leading-relaxed">
               Send <span className="text-white">${calcTotal(guestCount)} CAD</span> via e-transfer to{" "}
               <span className="text-[#4a9e8e]">teamendoustoronto@gmail.com</span> to secure your booking.
@@ -314,6 +328,17 @@ export default function BookingPage() {
       )}
 
       <div className="h-24" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Default export — standalone /booking route
+// ---------------------------------------------------------------------------
+export default function BookingPage() {
+  return (
+    <main className="min-h-screen bg-black">
+      <ReservationsSection />
     </main>
   );
 }
