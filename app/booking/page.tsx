@@ -1,20 +1,30 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 // ---------------------------------------------------------------------------
 // Cal.com config
 // ---------------------------------------------------------------------------
 const CAL_USERNAME = "navin-pandey-scvuvp";
-const CAL_EVENT_SLUG = "30min";
 const API_KEY = process.env.NEXT_PUBLIC_CAL_API_KEY ?? "";
-const EVENT_TYPE_ID = 5673722;
 const CAL_API_BASE = "https://api.cal.com/v2";
 const SLOTS_API_VERSION = "2024-09-04";
 const BOOKINGS_API_VERSION = "2024-08-13";
 
 const DOW_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+type EventType = {
+  id: number;
+  title: string;
+  slug: string;
+  lengthInMinutes: number;
+  description: string | null;
+  price: number;
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -38,17 +48,63 @@ function buildCalendarGrid(year: number, month: number): (Date | null)[] {
 function toDateString(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-function calcTotal(guests: number): number {
-  return guests <= 2 ? 49 : 49 + (guests - 2) * 20;
+function parsePricing(description: string | null) {
+  const match = description?.match(/\\?\[pricing:\s*base=(\d+),\s*baseGuests=(\d+),\s*perExtra=(\d+)\\?\]/);
+  if (!match) return { base: 0, baseGuests: 1, perExtra: 0 };
+  return { base: Number(match[1]), baseGuests: Number(match[2]), perExtra: Number(match[3]) };
+}
+
+function cleanDescription(description: string | null) {
+  return description?.replace(/\\?\[pricing:.*?\\?\]/g, "").trim() ?? "";
+}
+
+function calcTotal(guests: number, pricing: { base: number; baseGuests: number; perExtra: number }): number {
+  if (guests <= pricing.baseGuests) return pricing.base;
+  return pricing.base + (guests - pricing.baseGuests) * pricing.perExtra;
 }
 
 // ---------------------------------------------------------------------------
 // API calls
 // ---------------------------------------------------------------------------
-async function fetchAvailableSlots(date: Date): Promise<string[]> {
+async function fetchEventTypes(): Promise<EventType[]> {
+  const res = await fetch(`${CAL_API_BASE}/event-types?username=${CAL_USERNAME}`, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "cal-api-version": "2024-06-14",
+    },
+  });
+  if (!res.ok) throw new Error("Failed to fetch event types");
+  const json = await res.json();
+  const types: EventType[] = json?.data ?? [];
+
+  // Fetch full details for each event type to get complete description
+  const fullTypes = await Promise.all(
+    types.map(async (et) => {
+      const detailRes = await fetch(`${CAL_API_BASE}/event-types/${et.id}`, {
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "cal-api-version": "2024-06-14",
+        },
+      });
+      if (!detailRes.ok) return et;
+      const detailJson = await detailRes.json();
+      return { ...et, description: detailJson?.data?.description ?? et.description };
+    })
+  );
+
+  return fullTypes;
+}
+
+async function fetchAvailableSlots(date: Date, slug: string, duration: number): Promise<string[]> {
   const endDate = new Date(date);
   endDate.setDate(endDate.getDate() + 1);
-  const params = new URLSearchParams({ username: CAL_USERNAME, eventTypeSlug: CAL_EVENT_SLUG, start: toDateString(date), end: toDateString(endDate) });
+  const params = new URLSearchParams({
+    username: CAL_USERNAME,
+    eventTypeSlug: slug,
+    duration: String(duration),
+    start: toDateString(date),
+    end: toDateString(endDate),
+  });
   const res = await fetch(`${CAL_API_BASE}/slots?${params}`, { headers: { Authorization: `Bearer ${API_KEY}`, "cal-api-version": SLOTS_API_VERSION } });
   if (!res.ok) throw new Error(`Failed to load slots (${res.status})`);
   const json = await res.json();
@@ -56,12 +112,12 @@ async function fetchAvailableSlots(date: Date): Promise<string[]> {
   return slots.map((s) => s.start);
 }
 
-async function submitBooking(slot: string, name: string, email: string): Promise<void> {
+async function submitBooking(slot: string, name: string, email: string, eventTypeId: number): Promise<void> {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const res = await fetch(`${CAL_API_BASE}/bookings`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}`, "cal-api-version": BOOKINGS_API_VERSION },
-    body: JSON.stringify({ start: slot, eventTypeId: EVENT_TYPE_ID, attendee: { name, email, timeZone } }),
+    body: JSON.stringify({ start: slot, eventTypeId, attendee: { name, email, timeZone } }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -99,7 +155,15 @@ export function ReservationsSection() {
   const minDate = new Date(today);
   minDate.setDate(minDate.getDate() + 7);
 
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
+  const [eventTypesLoading, setEventTypesLoading] = useState(true);
+  const [eventTypesError, setEventTypesError] = useState<string | null>(null);
+
   const [selectedExperience, setSelectedExperience] = useState<string | null>(null);
+  const [selectedEventTypeId, setSelectedEventTypeId] = useState<number | null>(null);
+  const [selectedEventLength, setSelectedEventLength] = useState<number>(120);
+  const [selectedPricing, setSelectedPricing] = useState({ base: 0, baseGuests: 1, perExtra: 0 });
+
   const [viewYear, setViewYear] = useState(minDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(minDate.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -114,21 +178,29 @@ export function ReservationsSection() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
 
+  useEffect(() => {
+    fetchEventTypes()
+      .then(setEventTypes)
+      .catch(e => setEventTypesError(e.message))
+      .finally(() => setEventTypesLoading(false));
+  }, []);
+
   const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); } else setViewMonth(m => m - 1); };
   const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); } else setViewMonth(m => m + 1); };
 
   const handleDateSelect = useCallback(async (date: Date) => {
+    if (!selectedExperience) return;
     setSelectedDate(date); setSelectedSlot(null); setConfirmed(false); setBookingError(null); setSlots([]); setSlotsError(null); setSlotsLoading(true);
-    try { setSlots(await fetchAvailableSlots(date)); }
+    try { setSlots(await fetchAvailableSlots(date, selectedExperience, selectedEventLength)); }
     catch (e) { setSlotsError(e instanceof Error ? e.message : "Could not load slots."); }
     finally { setSlotsLoading(false); }
-  }, []);
+  }, [selectedExperience, selectedEventLength]);
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedSlot) return;
+    if (!selectedSlot || !selectedEventTypeId) return;
     setSubmitting(true); setBookingError(null);
-    try { await submitBooking(selectedSlot, name, email); setConfirmed(true); }
+    try { await submitBooking(selectedSlot, name, email, selectedEventTypeId); setConfirmed(true); }
     catch (e) { setBookingError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setSubmitting(false); }
   };
@@ -136,10 +208,12 @@ export function ReservationsSection() {
   const resetAll = () => {
     setConfirmed(false); setSelectedDate(null); setSelectedSlot(null); setSlots([]);
     setName(""); setEmail(""); setGuestCount(2); setSelectedExperience(null);
+    setSelectedEventTypeId(null); setSelectedEventLength(120);
+    setSelectedPricing({ base: 0, baseGuests: 1, perExtra: 0 });
   };
 
   const calGrid = buildCalendarGrid(viewYear, viewMonth);
-  const total = calcTotal(guestCount);
+  const total = calcTotal(guestCount, selectedPricing);
 
   return (
     <div className="bg-black text-white">
@@ -159,28 +233,30 @@ export function ReservationsSection() {
       <Section>
         <SectionLabel number={1} text="Choose Experience" />
         <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => { setSelectedExperience("tea-gathering"); setSelectedDate(null); setSelectedSlot(null); setSlots([]); }}
-            className={`text-left p-6 border transition-colors duration-200 ${selectedExperience === "tea-gathering" ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
-          >
-            <p className="font-monument text-white text-base font-semibold mb-1">Tea Gathering</p>
-            <p className="font-monument text-[#4a9e8e] text-sm mb-4">围炉小聚</p>
-            <p className="text-[#555555] text-xs leading-relaxed mb-8">An intimate tea ceremony experience with seasonal snacks and a cozy roasting table.</p>
-            <div className="flex items-center justify-between">
-              <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">2 hours</span>
-              <span className="text-[#4a9e8e] text-xs">Starting at $49 / group</span>
-            </div>
-          </button>
-
-          <div className="text-left p-6 border border-[#1a1a1a] opacity-30 cursor-not-allowed select-none">
-            <p className="font-monument text-[#444444] text-base font-semibold mb-1">Coming Soon</p>
-            <p className="text-[#333333] text-sm mb-4">&nbsp;</p>
-            <p className="text-[#333333] text-xs leading-relaxed mb-8">More experiences coming soon.</p>
-            <div className="flex items-center justify-between">
-              <span className="text-[#333333] text-xs">—</span>
-              <span className="text-[#333333] text-xs">—</span>
-            </div>
-          </div>
+          {eventTypesLoading && <p className="text-[#444444] text-xs">Loading experiences…</p>}
+          {eventTypesError && <p className="text-red-500 text-xs">{eventTypesError}</p>}
+          {!eventTypesLoading && eventTypes.map(et => (
+            <button
+              key={et.id}
+              onClick={() => {
+                setSelectedExperience(et.slug);
+                setSelectedEventTypeId(et.id);
+                setSelectedEventLength(et.lengthInMinutes);
+                setSelectedPricing(parsePricing(et.description));
+                setSelectedDate(null);
+                setSelectedSlot(null);
+                setSlots([]);
+              }}
+              className={`text-left p-6 border transition-colors duration-200 ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
+            >
+              <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
+              <div className="text-[#555555] text-xs leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
+              <div className="flex items-center justify-between">
+                <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">{et.lengthInMinutes} min</span>
+                {et.price > 0 && <span className="text-[#4a9e8e] text-xs">${(et.price / 100).toFixed(2)}</span>}
+              </div>
+            </button>
+          ))}
         </div>
       </Section>
 
@@ -244,7 +320,7 @@ export function ReservationsSection() {
                 <button key={slot} onClick={() => { setSelectedSlot(slot); setConfirmed(false); setBookingError(null); }}
                   className={`px-5 py-4 border text-left transition-colors duration-200 ${selectedSlot === slot ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}>
                   <p className="text-white text-sm font-medium">{formatTime(slot)}</p>
-                  <p className="text-[#444444] text-[10px] mt-1 uppercase tracking-widest">2 hours</p>
+                  <p className="text-[#444444] text-[10px] mt-1 uppercase tracking-widest">{selectedEventLength} min</p>
                 </button>
               ))}
             </div>
@@ -281,9 +357,15 @@ export function ReservationsSection() {
             <div className="flex items-baseline justify-between border-t border-[#1a1a1a] pt-6">
               <div>
                 <p className="text-[#444444] text-[10px] uppercase tracking-[0.2em] mb-1">Total</p>
-                {guestCount > 2 && <p className="text-[#333333] text-[10px]">$49 + ${(guestCount - 2) * 20} extra</p>}
+                {guestCount > selectedPricing.baseGuests && selectedPricing.perExtra > 0 && (
+                  <p className="text-[#333333] text-[10px]">
+                    ${selectedPricing.base} + ${(guestCount - selectedPricing.baseGuests) * selectedPricing.perExtra} extra guests
+                  </p>
+                )}
               </div>
-              <p className="text-white text-3xl font-light">${total} <span className="text-[#444444] text-sm font-normal">CAD</span></p>
+              <p className="text-white text-3xl font-light">
+                ${calcTotal(guestCount, selectedPricing)} <span className="text-[#444444] text-sm font-normal">CAD</span>
+              </p>
             </div>
             {bookingError && <p className="text-red-500 text-xs">{bookingError}</p>}
             <button type="submit" disabled={submitting}
@@ -310,13 +392,13 @@ export function ReservationsSection() {
             ))}
             <div className="flex justify-between text-sm border-t border-[#1a1a1a] pt-4">
               <span className="text-[#444444]">Total</span>
-              <span className="text-white">${calcTotal(guestCount)} CAD</span>
+              <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span>
             </div>
           </div>
           <div className="border border-[#1a1a1a] p-6 mb-8 w-full max-w-sm">
             <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Complete Your Reservation</p>
             <p className="text-[#555555] text-xs leading-relaxed">
-              Send <span className="text-white">${calcTotal(guestCount)} CAD</span> via e-transfer to{" "}
+              Send <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span> via e-transfer to{" "}
               <span className="text-[#4a9e8e]">teamendoustoronto@gmail.com</span> to secure your booking.
               Confirmation sent to <span className="text-white">{email}</span>.
             </p>
