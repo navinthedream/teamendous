@@ -112,12 +112,30 @@ async function fetchAvailableSlots(date: Date, slug: string, duration: number): 
   return slots.map((s) => s.start);
 }
 
-async function submitBooking(slot: string, name: string, email: string, eventTypeId: number): Promise<void> {
+async function submitBooking(
+  slot: string,
+  name: string,
+  email: string,
+  eventTypeId: number,
+  guestCount: number,
+  pricing: { base: number; baseGuests: number; perExtra: number }
+): Promise<void> {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const res = await fetch(`${CAL_API_BASE}/bookings`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}`, "cal-api-version": BOOKINGS_API_VERSION },
-    body: JSON.stringify({ start: slot, eventTypeId, attendee: { name, email, timeZone } }),
+    body: JSON.stringify({
+      start: slot,
+      eventTypeId,
+      attendee: { name, email, timeZone },
+      metadata: {
+        guestCount: String(guestCount),
+        totalOwed: `$${calcTotal(guestCount, pricing)} CAD`,
+      },
+      bookingFieldsResponses: {
+        notes: `Guests: ${guestCount} · Total owed via e-transfer: $${calcTotal(guestCount, pricing)} CAD`,
+      },
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -200,7 +218,7 @@ export function ReservationsSection() {
     e.preventDefault();
     if (!selectedSlot || !selectedEventTypeId) return;
     setSubmitting(true); setBookingError(null);
-    try { await submitBooking(selectedSlot, name, email, selectedEventTypeId); setConfirmed(true); }
+    try { await submitBooking(selectedSlot, name, email, selectedEventTypeId, guestCount, selectedPricing); setConfirmed(true); }
     catch (e) { setBookingError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setSubmitting(false); }
   };
