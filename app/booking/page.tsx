@@ -265,11 +265,13 @@ export function ReservationsSection() {
                 setSelectedSlot(null);
                 setSlots([]);
               }}
-              className={`text-left p-6 border transition-colors duration-200 ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
+              className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[280px] ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
             >
-              <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
-              <div className="text-[#555555] text-xs leading-relaxed mb-8" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col flex-1">
+                <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
+                <div className="text-[#555555] text-xs leading-relaxed mt-2" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
+              </div>
+              <div className="flex items-center justify-between mt-6">
                 <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">{et.lengthInMinutes} min</span>
                 {et.price > 0 && <span className="text-[#4a9e8e] text-xs">${(et.price / 100).toFixed(2)}</span>}
               </div>
