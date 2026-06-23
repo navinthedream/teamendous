@@ -238,6 +238,7 @@ export function ReservationsSection() {
   const [availableDays, setAvailableDays] = useState<Set<string>>(new Set());
   const [monthLoading, setMonthLoading] = useState(false);
 
+
   useEffect(() => {
     fetchEventTypes()
       .then(setEventTypes)
@@ -306,7 +307,7 @@ export function ReservationsSection() {
           {eventTypesLoading && <p className="text-[#777777] text-xs">Loading experiences…</p>}
           {eventTypesError && <p className="text-red-500 text-xs">{eventTypesError}</p>}
           {!eventTypesLoading && eventTypes.map(et => (
-            <button
+            <div
               key={et.id}
               onClick={() => {
                 setSelectedExperience(et.slug);
@@ -318,17 +319,20 @@ export function ReservationsSection() {
                 setSlots([]);
                 setAvailableDays(new Set());
               }}
-              className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[160px] ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
+              className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[160px] cursor-pointer ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
             >
               <div className="flex flex-col flex-1">
                 <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
-                <div className="text-[#999999] text-xs leading-relaxed mt-2" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
+                <div
+                  className={`text-[#999999] text-xs leading-relaxed mt-2 overflow-hidden transition-all duration-300 ${selectedExperience === et.slug ? "max-h-[500px] opacity-100 mt-3" : "max-h-0 opacity-0"}`}
+                  dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }}
+                />
               </div>
               <div className="flex items-center justify-between mt-6">
                 <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">{et.lengthInMinutes} min</span>
                 {et.price > 0 && <span className="text-[#4a9e8e] text-xs">${(et.price / 100).toFixed(2)}</span>}
               </div>
-            </button>
+            </div>
           ))}
         </div>
         {selectedExperience && INSTRUCTOR_BY_SLUG[selectedExperience] && (() => {
