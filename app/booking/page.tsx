@@ -285,7 +285,7 @@ export function ReservationsSection() {
       {/* 1. Choose Experience */}
       <Section>
         <SectionLabel number={1} text="Choose Experience" />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))" }}>
           {eventTypesLoading && <p className="text-[#444444] text-xs">Loading experiences…</p>}
           {eventTypesError && <p className="text-red-500 text-xs">{eventTypesError}</p>}
           {!eventTypesLoading && eventTypes.map(et => (
@@ -301,7 +301,7 @@ export function ReservationsSection() {
                 setSlots([]);
                 setAvailableDays(new Set());
               }}
-              className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[280px] ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
+              className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[160px] ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
             >
               <div className="flex flex-col flex-1">
                 <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
