@@ -17,6 +17,13 @@ const MONTH_NAMES = ["January","February","March","April","May","June","July","A
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+type Slot = {
+  start: string;
+  seatsBooked?: number;
+  seatsRemaining?: number;
+  seatsTotal?: number;
+};
+
 type EventType = {
   id: number;
   title: string;
@@ -95,7 +102,7 @@ async function fetchEventTypes(): Promise<EventType[]> {
   return fullTypes;
 }
 
-async function fetchAvailableSlots(date: Date, slug: string, duration: number): Promise<string[]> {
+async function fetchAvailableSlots(date: Date, slug: string, duration: number): Promise<Slot[]> {
   const endDate = new Date(date);
   endDate.setDate(endDate.getDate() + 1);
   const params = new URLSearchParams({
@@ -108,8 +115,8 @@ async function fetchAvailableSlots(date: Date, slug: string, duration: number): 
   const res = await fetch(`${CAL_API_BASE}/slots?${params}`, { headers: { Authorization: `Bearer ${API_KEY}`, "cal-api-version": SLOTS_API_VERSION } });
   if (!res.ok) throw new Error(`Failed to load slots (${res.status})`);
   const json = await res.json();
-  const slots: { start: string }[] = json?.data?.[toDateString(date)] ?? [];
-  return slots.map((s) => s.start);
+  const slots: Slot[] = json?.data?.[toDateString(date)] ?? [];
+  return slots;
 }
 
 async function fetchMonthAvailability(year: number, month: number, slug: string): Promise<Set<string>> {
@@ -201,10 +208,10 @@ export function ReservationsSection() {
   const [viewYear, setViewYear] = useState(minDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(minDate.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [slots, setSlots] = useState<string[]>([]);
+  const [slots, setSlots] = useState<Slot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [guestCount, setGuestCount] = useState(2);
@@ -245,7 +252,7 @@ export function ReservationsSection() {
     e.preventDefault();
     if (!selectedSlot || !selectedEventTypeId) return;
     setSubmitting(true); setBookingError(null);
-    try { await submitBooking(selectedSlot, name, email, selectedEventTypeId, guestCount, selectedPricing); setConfirmed(true); }
+    try { await submitBooking(selectedSlot.start, name, email, selectedEventTypeId, guestCount, selectedPricing); setConfirmed(true); }
     catch (e) { setBookingError(e instanceof Error ? e.message : "Something went wrong."); }
     finally { setSubmitting(false); }
   };
@@ -368,10 +375,15 @@ export function ReservationsSection() {
           {!slotsLoading && !slotsError && slots.length > 0 && (
             <div className="grid grid-cols-2 gap-4 w-full">
               {slots.map(slot => (
-                <button key={slot} onClick={() => { setSelectedSlot(slot); setConfirmed(false); setBookingError(null); }}
-                  className={`px-5 py-4 border text-left transition-colors duration-200 ${selectedSlot === slot ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}>
-                  <p className="text-white text-sm font-medium">{formatTime(slot)}</p>
+                <button key={slot.start} onClick={() => { setSelectedSlot(slot); setConfirmed(false); setBookingError(null); }}
+                  className={`px-5 py-4 border text-left transition-colors duration-200 ${selectedSlot?.start === slot.start ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}>
+                  <p className="text-white text-sm font-medium">{formatTime(slot.start)}</p>
                   <p className="text-[#444444] text-[10px] mt-1 uppercase tracking-widest">{selectedEventLength} min</p>
+                  {slot.seatsTotal && (
+                    <p className={`text-[10px] mt-1 tracking-widest uppercase ${slot.seatsRemaining && slot.seatsRemaining <= 3 ? "text-red-400" : "text-[#4a9e8e]"}`}>
+                      {slot.seatsRemaining}/{slot.seatsTotal} seats remaining
+                    </p>
+                  )}
                 </button>
               ))}
             </div>
@@ -435,7 +447,7 @@ export function ReservationsSection() {
             We&apos;ll see you soon, {name.split(" ")[0]}.
           </p>
           <div className="border-t border-[#1a1a1a] pt-6 space-y-4 mb-8 w-full max-w-sm">
-            {[{ label: "Date", value: formatDateLong(selectedDate) }, { label: "Time", value: formatTime(selectedSlot) }, { label: "Guests", value: String(guestCount) }].map(row => (
+            {[{ label: "Date", value: formatDateLong(selectedDate) }, { label: "Time", value: formatTime(selectedSlot.start) }, { label: "Guests", value: String(guestCount) }].map(row => (
               <div key={row.label} className="flex justify-between text-sm">
                 <span className="text-[#444444]">{row.label}</span>
                 <span className="text-white">{row.value}</span>
