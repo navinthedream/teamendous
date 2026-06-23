@@ -112,6 +112,23 @@ async function fetchAvailableSlots(date: Date, slug: string, duration: number): 
   return slots.map((s) => s.start);
 }
 
+async function fetchMonthAvailability(year: number, month: number, slug: string): Promise<Set<string>> {
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const params = new URLSearchParams({
+    username: CAL_USERNAME,
+    eventTypeSlug: slug,
+    start: toDateString(start),
+    end: toDateString(end),
+  });
+  const res = await fetch(`${CAL_API_BASE}/slots?${params}`, {
+    headers: { Authorization: `Bearer ${API_KEY}`, "cal-api-version": SLOTS_API_VERSION },
+  });
+  if (!res.ok) return new Set();
+  const json = await res.json();
+  return new Set(Object.keys(json?.data ?? {}));
+}
+
 async function submitBooking(
   slot: string,
   name: string,
@@ -170,8 +187,7 @@ function SectionLabel({ number, text }: { number: number; text: string }) {
 export function ReservationsSection() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const minDate = new Date(today);
-  minDate.setDate(minDate.getDate() + 7);
+  const minDate = today;
 
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
   const [eventTypesLoading, setEventTypesLoading] = useState(true);
@@ -195,6 +211,8 @@ export function ReservationsSection() {
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [availableDays, setAvailableDays] = useState<Set<string>>(new Set());
+  const [monthLoading, setMonthLoading] = useState(false);
 
   useEffect(() => {
     fetchEventTypes()
@@ -202,6 +220,15 @@ export function ReservationsSection() {
       .catch(e => setEventTypesError(e.message))
       .finally(() => setEventTypesLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!selectedExperience) return;
+    setAvailableDays(new Set());
+    setMonthLoading(true);
+    fetchMonthAvailability(viewYear, viewMonth, selectedExperience)
+      .then(setAvailableDays)
+      .finally(() => setMonthLoading(false));
+  }, [viewYear, viewMonth, selectedExperience]);
 
   const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); } else setViewMonth(m => m - 1); };
   const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); } else setViewMonth(m => m + 1); };
@@ -228,6 +255,7 @@ export function ReservationsSection() {
     setName(""); setEmail(""); setGuestCount(2); setSelectedExperience(null);
     setSelectedEventTypeId(null); setSelectedEventLength(120);
     setSelectedPricing({ base: 0, baseGuests: 1, perExtra: 0 });
+    setAvailableDays(new Set());
   };
 
   const calGrid = buildCalendarGrid(viewYear, viewMonth);
@@ -264,6 +292,7 @@ export function ReservationsSection() {
                 setSelectedDate(null);
                 setSelectedSlot(null);
                 setSlots([]);
+                setAvailableDays(new Set());
               }}
               className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[280px] ${selectedExperience === et.slug ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
             >
@@ -287,7 +316,10 @@ export function ReservationsSection() {
           <div className="w-full max-w-xs">
             <div className="flex items-center justify-between mb-6">
               <button onClick={prevMonth} className="text-[#444444] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">‹</button>
-              <span className="text-white text-sm tracking-[0.15em] uppercase">{MONTH_NAMES[viewMonth]} {viewYear}</span>
+              <span className="text-white text-sm tracking-[0.15em] uppercase flex items-center gap-2">
+                {MONTH_NAMES[viewMonth]} {viewYear}
+                {monthLoading && <span className="w-3 h-3 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin inline-block" />}
+              </span>
               <button onClick={nextMonth} className="text-[#444444] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">›</button>
             </div>
             <div className="grid grid-cols-7 mb-2">
@@ -298,7 +330,7 @@ export function ReservationsSection() {
             <div className="grid grid-cols-7 gap-y-1">
               {calGrid.map((day, i) => {
                 if (!day) return <div key={`e-${i}`} aria-hidden />;
-                const isDisabled = day < minDate;
+                const isDisabled = day < minDate || (!monthLoading && !availableDays.has(toDateString(day)));
                 const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
                 return (
                   <button key={day.toISOString()} disabled={isDisabled} onClick={() => handleDateSelect(day)}
@@ -309,7 +341,6 @@ export function ReservationsSection() {
                 );
               })}
             </div>
-            <p className="text-[#333333] text-[10px] mt-6 tracking-wide">Bookings require at least 1 week notice</p>
           </div>
         </Section>
       )}
