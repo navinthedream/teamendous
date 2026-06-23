@@ -215,11 +215,11 @@ function MenuSection() {
                   <span className="font-monument text-white text-sm tracking-widest uppercase">
                     {cat.category}
                   </span>
-                  <span className="text-[#444444] text-xs" style={{ fontFamily: "serif" }}>
+                  <span className="text-[#777777] text-xs" style={{ fontFamily: "serif" }}>
                     {cat.categoryZh}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-[#444444] text-[10px] tracking-widest uppercase">
+                <div className="flex items-center gap-3 text-[#777777] text-[10px] tracking-widest uppercase">
                   <span>{itemCount(cat)} items</span>
                   <svg
                     width="10"
@@ -402,9 +402,9 @@ export default function Home() {
 
           {/* Left: store info */}
           <div>
-            <p className="text-[#444444] text-[10px] tracking-widest uppercase mb-3">(Toronto)</p>
+            <p className="text-[#777777] text-[10px] tracking-widest uppercase mb-3">(Toronto)</p>
             <p className="font-monument text-white text-xl mb-1">TEAMENDOUS Toronto</p>
-            <p className="text-[#444444] text-[10px] tracking-widest mb-6">TEAMENDOUS · Toronto</p>
+            <p className="text-[#777777] text-[10px] tracking-widest mb-6">TEAMENDOUS · Toronto</p>
 
             <p className="text-white text-sm">10 Karl Fraser Rd,</p>
             <p className="text-white text-sm mb-6">North York, ON M3C 0E9</p>
@@ -454,7 +454,7 @@ export default function Home() {
 
           {/* Right: hours */}
           <div>
-            <p className="text-[#444444] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
+            <p className="text-[#777777] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
             {[
               { day: "MON", hours: "11:00 AM – 8:00 PM", closed: false },
               { day: "TUE", hours: "11:00 AM – 8:00 PM", closed: false },
@@ -465,8 +465,8 @@ export default function Home() {
               { day: "SUN", hours: "11:00 AM – 8:00 PM", closed: false },
             ].map(({ day, hours, closed }) => (
               <div key={day} className="flex items-center justify-between py-3 border-b border-[#111111]">
-                <span className="text-[#444444] text-xs tracking-widest">{day}</span>
-                <span className={`text-xs ${closed ? "text-[#444444]" : "text-white"}`}>{hours}</span>
+                <span className="text-[#777777] text-xs tracking-widest">{day}</span>
+                <span className={`text-xs ${closed ? "text-[#777777]" : "text-white"}`}>{hours}</span>
               </div>
             ))}
           </div>

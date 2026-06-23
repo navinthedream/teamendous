@@ -199,7 +199,7 @@ function Section({ children, center = false }: { children: React.ReactNode; cent
 
 function SectionLabel({ number, text }: { number: number; text: string }) {
   return (
-    <p className="font-monument text-[#444444] text-[11px] tracking-[0.25em] uppercase mb-8">
+    <p className="font-monument text-[#777777] text-[11px] tracking-[0.25em] uppercase mb-8">
       {number}. {text}
     </p>
   );
@@ -294,7 +294,7 @@ export function ReservationsSection() {
         <h1 className="font-monument text-white text-5xl md:text-7xl font-bold mb-6" style={{ letterSpacing: "-0.02em" }}>
           Reservations
         </h1>
-        <p className="text-[#555555] text-sm leading-relaxed">
+        <p className="text-[#999999] text-sm leading-relaxed">
           Book a tea gathering or table reservation at our Toronto location.
         </p>
       </Section>
@@ -303,7 +303,7 @@ export function ReservationsSection() {
       <Section>
         <SectionLabel number={1} text="Choose Experience" />
         <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))" }}>
-          {eventTypesLoading && <p className="text-[#444444] text-xs">Loading experiences…</p>}
+          {eventTypesLoading && <p className="text-[#777777] text-xs">Loading experiences…</p>}
           {eventTypesError && <p className="text-red-500 text-xs">{eventTypesError}</p>}
           {!eventTypesLoading && eventTypes.map(et => (
             <button
@@ -322,7 +322,7 @@ export function ReservationsSection() {
             >
               <div className="flex flex-col flex-1">
                 <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
-                <div className="text-[#555555] text-xs leading-relaxed mt-2" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
+                <div className="text-[#999999] text-xs leading-relaxed mt-2" dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }} />
               </div>
               <div className="flex items-center justify-between mt-6">
                 <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">{et.lengthInMinutes} min</span>
@@ -335,10 +335,10 @@ export function ReservationsSection() {
           const instructor = INSTRUCTOR_BY_SLUG[selectedExperience];
           return (
             <div className="w-full border-t border-[#1a1a1a] mt-8 pt-8">
-              <p className="text-[#444444] text-[10px] uppercase tracking-widest mb-4">Instructor</p>
+              <p className="text-[#777777] text-[10px] uppercase tracking-widest mb-4">Instructor</p>
               <p className="font-monument text-white text-base mb-1">{instructor.name}</p>
               <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-4">{instructor.credentials}</p>
-              <p className="text-[#555555] text-xs leading-relaxed max-w-lg">{instructor.bio}</p>
+              <p className="text-[#999999] text-xs leading-relaxed max-w-lg">{instructor.bio}</p>
             </div>
           );
         })()}
@@ -350,16 +350,16 @@ export function ReservationsSection() {
           <SectionLabel number={2} text="Select Date" />
           <div className="w-full max-w-xs">
             <div className="flex items-center justify-between mb-6">
-              <button onClick={prevMonth} className="text-[#444444] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">‹</button>
+              <button onClick={prevMonth} className="text-[#777777] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">‹</button>
               <span className="text-white text-sm tracking-[0.15em] uppercase flex items-center gap-2">
                 {MONTH_NAMES[viewMonth]} {viewYear}
                 {monthLoading && <span className="w-3 h-3 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin inline-block" />}
               </span>
-              <button onClick={nextMonth} className="text-[#444444] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">›</button>
+              <button onClick={nextMonth} className="text-[#777777] hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center">›</button>
             </div>
             <div className="grid grid-cols-7 mb-2">
               {DOW_LABELS.map(d => (
-                <div key={d} className="text-center text-[10px] text-[#333333] uppercase tracking-widest py-1 select-none">{d}</div>
+                <div key={d} className="text-center text-[10px] text-[#666666] uppercase tracking-widest py-1 select-none">{d}</div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-y-1">
@@ -384,11 +384,11 @@ export function ReservationsSection() {
       {selectedDate && (
         <Section>
           <SectionLabel number={3} text="Select Time" />
-          <p className="text-[#444444] text-xs mb-8">{formatDateLong(selectedDate)}</p>
+          <p className="text-[#777777] text-xs mb-8">{formatDateLong(selectedDate)}</p>
           {slotsLoading && (
             <div className="flex items-center gap-3">
               <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
-              <span className="text-[#444444] text-xs">Checking availability…</span>
+              <span className="text-[#777777] text-xs">Checking availability…</span>
             </div>
           )}
           {!slotsLoading && slotsError && (
@@ -398,7 +398,7 @@ export function ReservationsSection() {
             </div>
           )}
           {!slotsLoading && !slotsError && slots.length === 0 && (
-            <p className="text-[#444444] text-xs">No sessions available — try another date.</p>
+            <p className="text-[#777777] text-xs">No sessions available — try another date.</p>
           )}
           {!slotsLoading && !slotsError && slots.length > 0 && (
             <div className="grid grid-cols-2 gap-4 w-full">
@@ -406,7 +406,7 @@ export function ReservationsSection() {
                 <button key={slot.start} onClick={() => { setSelectedSlot(slot); setConfirmed(false); setBookingError(null); }}
                   className={`px-5 py-4 border text-left transition-colors duration-200 ${selectedSlot?.start === slot.start ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}>
                   <p className="text-white text-sm font-medium">{formatTime(slot.start)}</p>
-                  <p className="text-[#444444] text-[10px] mt-1 uppercase tracking-widest">{selectedEventLength} min</p>
+                  <p className="text-[#777777] text-[10px] mt-1 uppercase tracking-widest">{selectedEventLength} min</p>
                   {slot.seatsTotal && (
                     <p className={`text-[10px] mt-1 tracking-widest uppercase ${slot.seatsRemaining && slot.seatsRemaining <= 3 ? "text-red-400" : "text-[#4a9e8e]"}`}>
                       {slot.seatsRemaining}/{slot.seatsTotal} seats remaining
@@ -425,37 +425,37 @@ export function ReservationsSection() {
           <SectionLabel number={4} text="Your Details" />
           <form onSubmit={handleBookingSubmit} className="flex flex-col gap-6 w-full">
             <div>
-              <label className="block text-[#444444] text-[10px] uppercase tracking-[0.2em] mb-2">Name</label>
+              <label className="block text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-2">Name</label>
               <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Your full name"
-                className="w-full bg-transparent border border-[#222222] px-4 py-3 text-white text-sm placeholder:text-[#333333] focus:outline-none focus:border-[#4a9e8e] transition-colors" />
+                className="w-full bg-transparent border border-[#222222] px-4 py-3 text-white text-sm placeholder:text-[#666666] focus:outline-none focus:border-[#4a9e8e] transition-colors" />
             </div>
             <div>
-              <label className="block text-[#444444] text-[10px] uppercase tracking-[0.2em] mb-2">Email</label>
+              <label className="block text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-2">Email</label>
               <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
-                className="w-full bg-transparent border border-[#222222] px-4 py-3 text-white text-sm placeholder:text-[#333333] focus:outline-none focus:border-[#4a9e8e] transition-colors" />
+                className="w-full bg-transparent border border-[#222222] px-4 py-3 text-white text-sm placeholder:text-[#666666] focus:outline-none focus:border-[#4a9e8e] transition-colors" />
             </div>
             <div>
-              <label className="block text-[#444444] text-[10px] uppercase tracking-[0.2em] mb-4">Guests</label>
+              <label className="block text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-4">Guests</label>
               <div className="flex items-center gap-5">
                 <button type="button" onClick={() => setGuestCount(g => Math.max(1, g - 1))} disabled={guestCount <= 1}
                   className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">−</button>
                 <span className="text-white font-medium w-4 text-center">{guestCount}</span>
                 <button type="button" onClick={() => setGuestCount(g => Math.min(8, g + 1))} disabled={guestCount >= 8}
                   className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">+</button>
-                <span className="text-[#333333] text-xs">max 8</span>
+                <span className="text-[#666666] text-xs">max 8</span>
               </div>
             </div>
             <div className="flex items-baseline justify-between border-t border-[#1a1a1a] pt-6">
               <div>
-                <p className="text-[#444444] text-[10px] uppercase tracking-[0.2em] mb-1">Total</p>
+                <p className="text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-1">Total</p>
                 {guestCount > selectedPricing.baseGuests && selectedPricing.perExtra > 0 && (
-                  <p className="text-[#333333] text-[10px]">
+                  <p className="text-[#666666] text-[10px]">
                     ${selectedPricing.base} + ${(guestCount - selectedPricing.baseGuests) * selectedPricing.perExtra} extra guests
                   </p>
                 )}
               </div>
               <p className="text-white text-3xl font-light">
-                ${calcTotal(guestCount, selectedPricing)} <span className="text-[#444444] text-sm font-normal">CAD</span>
+                ${calcTotal(guestCount, selectedPricing)} <span className="text-[#777777] text-sm font-normal">CAD</span>
               </p>
             </div>
             {bookingError && <p className="text-red-500 text-xs">{bookingError}</p>}
@@ -477,24 +477,24 @@ export function ReservationsSection() {
           <div className="border-t border-[#1a1a1a] pt-6 space-y-4 mb-8 w-full max-w-sm">
             {[{ label: "Date", value: formatDateLong(selectedDate) }, { label: "Time", value: formatTime(selectedSlot.start) }, { label: "Guests", value: String(guestCount) }].map(row => (
               <div key={row.label} className="flex justify-between text-sm">
-                <span className="text-[#444444]">{row.label}</span>
+                <span className="text-[#777777]">{row.label}</span>
                 <span className="text-white">{row.value}</span>
               </div>
             ))}
             <div className="flex justify-between text-sm border-t border-[#1a1a1a] pt-4">
-              <span className="text-[#444444]">Total</span>
+              <span className="text-[#777777]">Total</span>
               <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span>
             </div>
           </div>
           <div className="border border-[#1a1a1a] p-6 mb-8 w-full max-w-sm">
             <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Complete Your Reservation</p>
-            <p className="text-[#555555] text-xs leading-relaxed">
+            <p className="text-[#999999] text-xs leading-relaxed">
               Send <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span> via e-transfer to{" "}
               <span className="text-[#4a9e8e]">teamendoustoronto@gmail.com</span> to secure your booking.
               Confirmation sent to <span className="text-white">{email}</span>.
             </p>
           </div>
-          <button onClick={resetAll} className="text-xs text-[#333333] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
+          <button onClick={resetAll} className="text-xs text-[#666666] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
             Book another time
           </button>
         </Section>
