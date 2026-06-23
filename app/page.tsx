@@ -411,12 +411,12 @@ export default function Home() {
 
             <div className="flex flex-col gap-3 mb-8">
               {/* Email */}
-              <a href="mailto:hello@teamendous.tea" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
+              <a href="mailto:teamendoustoronto@gmail.com" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M2 7l10 7 10-7" />
                 </svg>
-                hello@teamendous.tea
+                teamendoustoronto@gmail.com
               </a>
               {/* Phone */}
               <a href="tel:+14165468800" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
@@ -456,13 +456,13 @@ export default function Home() {
           <div>
             <p className="text-[#444444] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
             {[
-              { day: "MON", hours: "Closed", closed: true },
-              { day: "TUE", hours: "12PM – 10PM", closed: false },
-              { day: "WED", hours: "12PM – 11PM", closed: false },
-              { day: "THU", hours: "12PM – 11PM", closed: false },
-              { day: "FRI", hours: "12PM – 12AM", closed: false },
-              { day: "SAT", hours: "12PM – 12AM", closed: false },
-              { day: "SUN", hours: "Closed", closed: true },
+              { day: "MON", hours: "11:00 AM – 8:00 PM", closed: false },
+              { day: "TUE", hours: "11:00 AM – 8:00 PM", closed: false },
+              { day: "WED", hours: "11:00 AM – 8:00 PM", closed: false },
+              { day: "THU", hours: "11:00 AM – 8:00 PM", closed: false },
+              { day: "FRI", hours: "11:00 AM – 10:00 PM", closed: false },
+              { day: "SAT", hours: "10:30 AM – 10:00 PM", closed: false },
+              { day: "SUN", hours: "11:00 AM – 8:00 PM", closed: false },
             ].map(({ day, hours, closed }) => (
               <div key={day} className="flex items-center justify-between py-3 border-b border-[#111111]">
                 <span className="text-[#444444] text-xs tracking-widest">{day}</span>
