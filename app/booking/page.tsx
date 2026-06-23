@@ -14,6 +14,23 @@ const BOOKINGS_API_VERSION = "2024-08-13";
 const DOW_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
+const INSTRUCTOR_BY_SLUG: Record<string, {
+  name: string;
+  credentials: string;
+  bio: string;
+}> = {
+  "matcha-mat-pilates": {
+    name: "Perla Bashmanian",
+    credentials: "Certified Personal Trainer · Pilates Instructor · Certified Nutrition Coach",
+    bio: "Passionate about helping women build strength, confidence, and sustainable healthy habits. Her approach combines movement, wellness, and community to create supportive environments where participants can improve their health, develop positive habits, and feel their best both physically and mentally. Through fitness and wellness education, she aims to help individuals build a balanced lifestyle that supports long-term health and well-being.",
+  },
+  "sip-stretch-yoga": {
+    name: "Perla Bashmanian",
+    credentials: "Certified Personal Trainer · Pilates Instructor · Certified Nutrition Coach",
+    bio: "Passionate about helping women build strength, confidence, and sustainable healthy habits. Her approach combines movement, wellness, and community to create supportive environments where participants can improve their health, develop positive habits, and feel their best both physically and mentally. Through fitness and wellness education, she aims to help individuals build a balanced lifestyle that supports long-term health and well-being.",
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -314,6 +331,17 @@ export function ReservationsSection() {
             </button>
           ))}
         </div>
+        {selectedExperience && INSTRUCTOR_BY_SLUG[selectedExperience] && (() => {
+          const instructor = INSTRUCTOR_BY_SLUG[selectedExperience];
+          return (
+            <div className="w-full border-t border-[#1a1a1a] mt-8 pt-8">
+              <p className="text-[#444444] text-[10px] uppercase tracking-widest mb-4">Instructor</p>
+              <p className="font-monument text-white text-base mb-1">{instructor.name}</p>
+              <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-4">{instructor.credentials}</p>
+              <p className="text-[#555555] text-xs leading-relaxed max-w-lg">{instructor.bio}</p>
+            </div>
+          );
+        })()}
       </Section>
 
       {/* 2. Select Date */}
