@@ -128,6 +128,7 @@ async function fetchAvailableSlots(date: Date, slug: string, duration: number): 
     duration: String(duration),
     start: toDateString(date),
     end: toDateString(endDate),
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
   const res = await fetch(`${CAL_API_BASE}/slots?${params}`, { headers: { Authorization: `Bearer ${API_KEY}`, "cal-api-version": SLOTS_API_VERSION } });
   if (!res.ok) throw new Error(`Failed to load slots (${res.status})`);
@@ -144,6 +145,7 @@ async function fetchMonthAvailability(year: number, month: number, slug: string)
     eventTypeSlug: slug,
     start: toDateString(start),
     end: toDateString(end),
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
   const res = await fetch(`${CAL_API_BASE}/slots?${params}`, {
     headers: { Authorization: `Bearer ${API_KEY}`, "cal-api-version": SLOTS_API_VERSION },
