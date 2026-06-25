@@ -440,28 +440,35 @@ export function ReservationsSection() {
               <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
                 className="w-full bg-transparent border border-[#222222] px-4 py-3 text-white text-sm placeholder:text-[#666666] focus:outline-none focus:border-[#4a9e8e] transition-colors" />
             </div>
-            <div>
-              <label className="block text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-4">Guests</label>
-              <div className="flex items-center gap-5">
-                <button type="button" onClick={() => setGuestCount(g => Math.max(1, g - 1))} disabled={guestCount <= 1}
-                  className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">−</button>
-                <span className="text-white font-medium w-4 text-center">{guestCount}</span>
-                <button type="button" onClick={() => setGuestCount(g => Math.min(8, g + 1))} disabled={guestCount >= 8}
-                  className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">+</button>
-                <span className="text-[#666666] text-xs">max 8</span>
-              </div>
-            </div>
-            <div className="flex items-baseline justify-between border-t border-[#1a1a1a] pt-6">
+            {/* Only show guest counter for non-seated events */}
+            {!selectedSlot?.seatsTotal && (
               <div>
-                <p className="text-[#777777] text-[10px] uppercase tracking-[0.2em] mb-1">Total</p>
-                {guestCount > selectedPricing.baseGuests && selectedPricing.perExtra > 0 && (
-                  <p className="text-[#666666] text-[10px]">
-                    ${selectedPricing.base} + ${(guestCount - selectedPricing.baseGuests) * selectedPricing.perExtra} extra guests
-                  </p>
+                <label className="block text-[#666666] text-[10px] uppercase tracking-[0.2em] mb-3">Guests</label>
+                <div className="flex items-center gap-5">
+                  <button type="button" onClick={() => setGuestCount(g => Math.max(1, g - 1))} disabled={guestCount <= 1}
+                    className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">−</button>
+                  <span className="text-white font-medium w-4 text-center">{guestCount}</span>
+                  <button type="button" onClick={() => setGuestCount(g => Math.min(8, g + 1))} disabled={guestCount >= 8}
+                    className="w-8 h-8 border border-[#222222] text-[#666666] flex items-center justify-center hover:border-[#4a9e8e] hover:text-[#4a9e8e] disabled:opacity-20 disabled:cursor-not-allowed transition-colors text-lg">+</button>
+                  <span className="text-[#555555] text-xs">max 8</span>
+                </div>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="flex items-baseline justify-between border-t border-[#1a1a1a] pt-5">
+              <div>
+                <p className="text-[#666666] text-[10px] uppercase tracking-[0.2em] mb-1">Total</p>
+                {!selectedSlot?.seatsTotal && guestCount > selectedPricing.baseGuests && selectedPricing.perExtra > 0 && (
+                  <p className="text-[#555555] text-[10px]">${selectedPricing.base} + ${(guestCount - selectedPricing.baseGuests) * selectedPricing.perExtra} extra</p>
+                )}
+                {selectedSlot?.seatsTotal && (
+                  <p className="text-[#555555] text-[10px]">Per person · each guest books individually</p>
                 )}
               </div>
               <p className="text-white text-3xl font-light">
-                ${calcTotal(guestCount, selectedPricing)} <span className="text-[#777777] text-sm font-normal">CAD</span>
+                ${selectedSlot?.seatsTotal ? selectedPricing.base : calcTotal(guestCount, selectedPricing)}
+                <span className="text-[#666666] text-sm font-normal"> CAD</span>
               </p>
             </div>
             {bookingError && <p className="text-red-500 text-xs">{bookingError}</p>}
