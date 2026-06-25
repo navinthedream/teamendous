@@ -477,14 +477,14 @@ export default function Home() {
       {/* ── Fixed bottom nav bar ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 border-t border-white/10 bg-black/20 backdrop-blur-sm">
         {/* Left: nav links */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide px-4 md:px-0 md:overflow-x-visible">
           {t.nav.map((label, i) => {
             const href = NAV_HREFS[i];
             return href.startsWith("/") ? (
               <Link
                 key={i}
                 href={href}
-                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
+                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200 whitespace-nowrap"
               >
                 {label}
               </Link>
@@ -492,7 +492,7 @@ export default function Home() {
               <a
                 key={i}
                 href={href}
-                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200"
+                className="font-monument text-white/70 text-xs tracking-[0.2em] uppercase hover:text-white transition-colors duration-200 whitespace-nowrap"
               >
                 {label}
               </a>
