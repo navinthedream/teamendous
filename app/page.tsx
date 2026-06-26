@@ -189,7 +189,7 @@ const MENU_DATA: MenuCategory[] = [
 // ---------------------------------------------------------------------------
 // MenuSection component
 // ---------------------------------------------------------------------------
-function MenuSection() {
+function MenuSection({ lang }: { lang: "en" | "zh" }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
@@ -199,7 +199,7 @@ function MenuSection() {
 
   return (
     <section id="menu" className="w-screen min-h-screen bg-black py-24 pb-32">
-      <p className="text-[#4a9e8e] text-xs tracking-[0.3em] text-center mb-20">茶饮菜单</p>
+      <p className="text-[#4a9e8e] text-xs tracking-[0.3em] text-center mb-20">{lang === "zh" ? "茶饮菜单" : "TEA MENU"}</p>
 
       <div className="max-w-3xl mx-auto px-8">
         {MENU_DATA.map((cat, i) => {
@@ -384,7 +384,7 @@ export default function Home() {
       </section>
 
       {/* ── Section 3: Menu ─────────────────────────────────────────── */}
-      <MenuSection />
+      <MenuSection lang={lang} />
 
       {/* ── Section 4: Reservations ─────────────────────────────────── */}
       <div id="reservations">

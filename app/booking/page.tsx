@@ -618,6 +618,19 @@ export function ReservationsSection({
                     ))}
                   </div>
                 </div>
+
+                {/* Instructor — shown when slug has an entry */}
+                {initialEvent && INSTRUCTOR_BY_SLUG[initialEvent] && (() => {
+                  const instructor = INSTRUCTOR_BY_SLUG[initialEvent];
+                  return (
+                    <div className="border-t border-[#1a1a1a] pt-7 mt-7">
+                      <p className="text-[#aaaaaa] text-[10px] uppercase tracking-[0.25em] mb-4">Instructor</p>
+                      <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
+                      <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-3">{instructor.credentials}</p>
+                      <p className="text-[#cccccc] text-xs leading-relaxed">{instructor.bio}</p>
+                    </div>
+                  );
+                })()}
               </>
             ) : eventTypesLoading ? (
               <div className="flex items-center gap-3">
@@ -632,6 +645,18 @@ export function ReservationsSection({
                   className="text-[#bbbbbb] text-xs leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: cleanDescription(currentEvent.description) }}
                 />
+                {/* Instructor fallback for non-hardcoded events */}
+                {initialEvent && INSTRUCTOR_BY_SLUG[initialEvent] && (() => {
+                  const instructor = INSTRUCTOR_BY_SLUG[initialEvent];
+                  return (
+                    <div className="border-t border-[#1a1a1a] pt-7 mt-7">
+                      <p className="text-[#aaaaaa] text-[10px] uppercase tracking-[0.25em] mb-4">Instructor</p>
+                      <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
+                      <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-3">{instructor.credentials}</p>
+                      <p className="text-[#cccccc] text-xs leading-relaxed">{instructor.bio}</p>
+                    </div>
+                  );
+                })()}
               </>
             ) : null}
           </div>
@@ -772,17 +797,6 @@ export function ReservationsSection({
             );
           })}
         </div>
-        {expandedCard && INSTRUCTOR_BY_SLUG[expandedCard] && (() => {
-          const instructor = INSTRUCTOR_BY_SLUG[expandedCard];
-          return (
-            <div className="w-full border-t border-[#1a1a1a] mt-8 pt-8">
-              <p className="text-[#aaaaaa] text-[10px] uppercase tracking-widest mb-4">Instructor</p>
-              <p className="font-monument text-white text-base mb-1">{instructor.name}</p>
-              <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-4">{instructor.credentials}</p>
-              <p className="text-[#cccccc] text-xs leading-relaxed max-w-lg">{instructor.bio}</p>
-            </div>
-          );
-        })()}
       </Section>
 
       <div className="h-24" />
