@@ -284,6 +284,11 @@ function MenuSection() {
 
 export default function Home() {
   const [lang, setLang] = useState<"en" | "zh">("en");
+  const [currentVideo, setCurrentVideo] = useState(1);
+
+  const handleVideoEnd = () => {
+    setCurrentVideo(v => v === 5 ? 1 : v + 1);
+  };
   const t = content[lang];
 
   return (
@@ -293,13 +298,14 @@ export default function Home() {
 
         {/* Background video */}
         <video
+          key={currentVideo}
           autoPlay
-          loop
           muted
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
+          onEnded={handleVideoEnd}
         >
-          <source src="/hero.mp4" type="video/mp4" />
+          <source src={`/teamendous-${currentVideo}.mp4`} type="video/mp4" />
         </video>
 
         {/* Dark overlay */}
@@ -382,7 +388,7 @@ export default function Home() {
 
       {/* ── Section 4: Reservations ─────────────────────────────────── */}
       <div id="reservations">
-        <ReservationsSection />
+        <ReservationsSection mode="preview" />
       </div>
 
       {/* ── Section 5: Location ─────────────────────────────────────── */}
