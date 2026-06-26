@@ -395,7 +395,7 @@ export default function Home() {
       <section id="location" className="w-screen min-h-screen bg-black text-white py-24 pb-32">
         {/* Header */}
         <div className="text-center mb-2">
-          <h2 className="font-monument text-white text-4xl md:text-5xl font-bold tracking-widest uppercase mb-4">
+          <h2 className="font-monument text-white text-4xl md:text-6xl tracking-widest uppercase mb-4 text-center">
             Location
           </h2>
           <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase">
@@ -404,7 +404,7 @@ export default function Home() {
         </div>
 
         {/* Two-column content */}
-        <div className="max-w-3xl mx-auto px-8 grid grid-cols-2 gap-16 mt-20">
+        <div className="max-w-3xl mx-auto px-8 grid grid-cols-1 md:grid-cols-2 gap-12 mt-16 items-start text-center md:text-left">
 
           {/* Left: store info */}
           <div>
@@ -415,9 +415,9 @@ export default function Home() {
             <p className="text-white text-sm">10 Karl Fraser Rd,</p>
             <p className="text-white text-sm mb-6">North York, ON M3C 0E9</p>
 
-            <div className="flex flex-col gap-3 mb-8">
+            <div className="flex flex-col gap-3 mb-8 items-center md:items-start">
               {/* Email */}
-              <a href="mailto:teamendoustoronto@gmail.com" className="flex items-center gap-2 text-[#4a9e8e] text-sm hover:opacity-80 transition-opacity">
+              <a href="mailto:teamendoustoronto@gmail.com" className="flex items-center gap-2 text-[#4a9e8e] text-sm break-all hover:opacity-80 transition-opacity">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M2 7l10 7 10-7" />
@@ -447,7 +447,7 @@ export default function Home() {
               href="https://maps.google.com/?q=10+Karl+Fraser+Rd+North+York+ON+M3C+0E9"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-white text-sm hover:text-[#4a9e8e] transition-colors"
+              className="text-white text-sm flex items-center gap-2 hover:text-[#4a9e8e] transition-colors justify-center md:justify-start"
             >
               Google Maps
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -461,6 +461,7 @@ export default function Home() {
           {/* Right: hours */}
           <div>
             <p className="text-[#777777] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
+            <div className="border-t border-[#111111] pt-6 space-y-0 mx-auto md:mx-0">
             {[
               { day: "MON", hours: "11:00 AM – 8:00 PM", closed: false },
               { day: "TUE", hours: "11:00 AM – 8:00 PM", closed: false },
@@ -470,11 +471,12 @@ export default function Home() {
               { day: "SAT", hours: "10:30 AM – 10:00 PM", closed: false },
               { day: "SUN", hours: "11:00 AM – 8:00 PM", closed: false },
             ].map(({ day, hours, closed }) => (
-              <div key={day} className="flex items-center justify-between py-3 border-b border-[#111111]">
+              <div key={day} className="flex justify-between md:justify-between justify-center gap-8 py-3 border-b border-[#111111]">
                 <span className="text-[#777777] text-xs tracking-widest">{day}</span>
                 <span className={`text-xs ${closed ? "text-[#777777]" : "text-white"}`}>{hours}</span>
               </div>
             ))}
+            </div>
           </div>
 
         </div>
@@ -483,7 +485,7 @@ export default function Home() {
       {/* ── Fixed bottom nav bar ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-5 border-t border-white/10 bg-black/20 backdrop-blur-sm">
         {/* Left: nav links */}
-        <div className="flex items-center gap-6 overflow-x-auto scrollbar-hide px-4 md:px-0 md:overflow-x-visible">
+        <div className="flex items-center gap-4 md:gap-8 overflow-x-auto scrollbar-hide whitespace-nowrap px-2">
           {t.nav.map((label, i) => {
             const href = NAV_HREFS[i];
             return href.startsWith("/") ? (
