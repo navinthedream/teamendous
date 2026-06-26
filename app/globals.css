@@ -14,14 +14,17 @@ html, body {
 }
 
 @font-face {
-  font-family: 'AllrounderMonument';
-  src: url('/fonts/AllrounderMonument-Book.otf') format('opentype');
+  font-family: 'GoudyTitling';
+  src: url('/fonts/GoudyTitling-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
 .font-monument {
-  font-family: 'AllrounderMonument', sans-serif;
+  font-family: 'GoudyTitling', serif;
+  font-weight: 50;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .scrollbar-hide {
