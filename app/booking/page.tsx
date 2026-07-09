@@ -667,7 +667,7 @@ export function ReservationsSection({
 
           {/* Progress bar — 3 segments, filled up to current step */}
           {bookingStep < 4 && (
-            <div className="flex gap-1 px-8 pt-8 pb-0">
+            <div className="flex gap-1 px-8 pt-4 pb-0">
               {([1, 2, 3] as const).map(n => (
                 <div
                   key={n}
@@ -813,7 +813,7 @@ function BookingPageInner() {
   return (
     <>
       {/* Top navigation bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 border-b border-white/10 bg-black/80 backdrop-blur-sm">
+      <div className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-8 border-b border-white/10 bg-black/80 backdrop-blur-sm">
         <Link
           href="/#reservations"
           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors duration-200"
