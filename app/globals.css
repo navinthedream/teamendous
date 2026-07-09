@@ -34,3 +34,12 @@ html, body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes raindrop {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(4px); }
+}
+
+.animate-raindrop {
+  animation: raindrop 3s ease-in-out infinite;
+}
