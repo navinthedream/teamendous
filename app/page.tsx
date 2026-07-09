@@ -36,7 +36,7 @@ const content = {
   },
 };
 
-const NAV_HREFS = ["#top", "#concept", "#menu", "#", "#reservations", "#location"];
+const NAV_HREFS = ["#top", "#concept", "#menu", "#tea-collection", "#reservations", "#location"];
 
 // ---------------------------------------------------------------------------
 // Menu data & types
@@ -282,6 +282,125 @@ function MenuSection({ lang }: { lang: "en" | "zh" }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Tea Collection data & component
+// ---------------------------------------------------------------------------
+const TEA_COLLECTION = [
+  {
+    category: "Black Tea",
+    categoryZh: "红茶",
+    items: [
+      { name: "Jiuqu Hongmei", nameZh: "九曲红梅", weight: "4g" },
+      { name: "Yunnan Wuliang Mountain", nameZh: "云南无量山", weight: "4g" },
+    ],
+  },
+  {
+    category: "Pu'er Tea",
+    categoryZh: "普洱茶",
+    items: [
+      { name: "Shou Pu'er", nameZh: "熟普", weight: "8g" },
+    ],
+  },
+  {
+    category: "Oolong Tea",
+    categoryZh: "乌龙茶",
+    items: [
+      { name: "Dancong", nameZh: "单丛", weight: "8g" },
+      { name: "Ya Shi Xiang", nameZh: "鸭屎香", weight: "4g" },
+      { name: "Lei Kou Chai", nameZh: "雷扣柴", weight: "4g" },
+    ],
+  },
+  {
+    category: "Green Tea",
+    categoryZh: "绿茶",
+    items: [
+      { name: "Dragon Well", nameZh: "龙井", weight: "4g" },
+    ],
+  },
+];
+
+function TeaCollectionSection() {
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+  const toggle = (category: string) =>
+    setOpenCategory(openCategory === category ? null : category);
+
+  return (
+    <section id="tea-collection" className="min-h-screen bg-black px-8 py-24 border-t border-[#1a1a1a]">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center">
+          <h2 className="font-monument text-white text-5xl md:text-6xl mb-4" style={{ letterSpacing: "-0.02em" }}>
+            TEA COLLECTION
+          </h2>
+          <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-3">精选茶叶</p>
+          <p className="text-[#777777] text-sm">Single-origin teas, brewed one leaf at a time.</p>
+        </div>
+
+        {/* Two col grid */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-12 mt-16 items-start">
+          {/* Left: accordion tea list */}
+          <div>
+            {TEA_COLLECTION.map((cat) => {
+              const isOpen = openCategory === cat.category;
+              return (
+                <div key={cat.category} className="border-t border-[#1a1a1a]">
+                  <button
+                    onClick={() => toggle(cat.category)}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-[#4a9e8e] text-[10px] tracking-widest uppercase">
+                        {cat.category}
+                      </span>
+                      <span className="text-[#555555] text-[10px] tracking-widest uppercase">
+                        {cat.categoryZh}
+                      </span>
+                    </div>
+                    <span className="text-[#666666] text-sm">{isOpen ? "−" : "+"}</span>
+                  </button>
+
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ${
+                      isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    {cat.items.map((item) => (
+                      <div
+                        key={item.name}
+                        className="flex items-center justify-between py-3 border-b border-[#1a1a1a]"
+                      >
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-white/80 text-sm">{item.name}</span>
+                          <span className="text-[#555555] text-xs">{item.nameZh}</span>
+                        </div>
+                        <span className="text-[#666666] text-sm">{item.weight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right: featured product card */}
+          <div className="border border-[#1a1a1a] p-0 overflow-hidden">
+            <div className="w-full h-48 bg-[#0a0a0a] flex items-center justify-center">
+              <span className="text-[#333333] text-xs tracking-widest uppercase">Image Coming Soon</span>
+            </div>
+            <div className="p-5">
+              <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-2">Coming Soon</p>
+              <p className="font-monument text-white text-lg mb-2">Jingdezhen Teaware</p>
+              <p className="text-[#666666] text-xs mb-2">来自中国景德镇的手工茶器即将上线</p>
+              <p className="text-[#888888] text-xs leading-relaxed">Handcrafted teaware from Jingdezhen, China — the porcelain capital of the world.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [lang, setLang] = useState<"en" | "zh">("en");
   const [currentVideo, setCurrentVideo] = useState(1);
@@ -386,7 +505,10 @@ export default function Home() {
       {/* ── Section 3: Menu ─────────────────────────────────────────── */}
       <MenuSection lang={lang} />
 
-      {/* ── Section 4: Reservations ─────────────────────────────────── */}
+      {/* ── Section 4: Tea Collection ───────────────────────────────── */}
+      <TeaCollectionSection />
+
+      {/* ── Section 5: Reservations ─────────────────────────────────── */}
       <div id="reservations">
         <ReservationsSection mode="preview" />
       </div>
