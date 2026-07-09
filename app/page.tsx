@@ -481,7 +481,7 @@ export default function Home() {
 
         {/* Background image */}
         <Image
-          src="/concept.jpg"
+          src="/concept2.jpg"
           alt=""
           fill
           className="object-cover"
@@ -489,6 +489,9 @@ export default function Home() {
 
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/60" />
+
+        {/* Bottom fade to black */}
+        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent z-10" />
 
         {/* Centered content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-8 text-center pb-16">
