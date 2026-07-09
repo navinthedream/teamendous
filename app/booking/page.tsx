@@ -552,9 +552,14 @@ export function ReservationsSection({
                 priority
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[#222222] text-[10px] uppercase tracking-[0.3em] select-none">Event Photo</span>
-              </div>
+              <Image
+                src="/concept2.jpg"
+                alt=""
+                fill
+                className="object-cover object-center opacity-60"
+                sizes="100vw"
+                priority
+              />
             )}
           </div>
 
