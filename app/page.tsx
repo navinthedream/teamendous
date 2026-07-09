@@ -342,7 +342,7 @@ function TeaCollectionSection({ lang }: { lang: "en" | "zh" }) {
             {lang === "zh" ? "精选茶叶" : "TEA COLLECTION"}
           </h2>
           <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-3">精选茶叶</p>
-          <p className="text-[#777777] text-sm">{lang === "zh" ? "Single-origin teas sourced from premier tea regions across China." : "Single-origin teas, brewed one leaf at a time."}</p>
+          <p className="text-[#777777] text-sm">{lang === "zh" ? "精选来自中国顶级茶区的单一产地茶叶。" : "Single-origin teas, brewed one leaf at a time."}</p>
         </div>
 
         {/* Two col grid */}

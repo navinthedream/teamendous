@@ -770,12 +770,14 @@ export function ReservationsSection({
 
       {/* Hero */}
       <Section center>
-        <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.3em] uppercase mb-6">Book Your Experience</p>
+        <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.3em] uppercase mb-6">
+          {lang === "zh" ? "预约体验" : "Book Your Experience"}
+        </p>
         <h1 className="font-monument text-white text-5xl md:text-7xl font-bold mb-6" style={{ letterSpacing: "-0.02em" }}>
-          Reservations
+          {lang === "zh" ? "预约" : "Reservations"}
         </h1>
         <p className="text-[#cccccc] text-sm leading-relaxed">
-          Book a tea gathering or table reservation at our Toronto location.
+          {lang === "zh" ? "在六时茶茗多伦多门店预订茶聚或桌位。" : "Book a tea gathering or table reservation at our Toronto location."}
         </p>
       </Section>
 
