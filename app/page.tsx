@@ -19,6 +19,10 @@ const content = {
       "Rooted in Eastern aesthetics and fused with contemporary design, TEAMENDOUS is dedicated to presenting every tea connoisseur with a sensory journey that transcends time and space.",
       "From the first light of dawn to the rise of the moon, let every cup of tea become life's most beautiful ritual.",
     ],
+    locationTitle: "Location",
+    locationSub: "Our Store",
+    businessHours: "Business Hours",
+    googleMaps: "Google Maps",
   },
   zh: {
     logo: "TEAMENDOUS",
@@ -33,6 +37,10 @@ const content = {
       "以东方美学为根基，融合当代设计语言，六时茶茗致力于为每一位茶客呈现一场跨越时空的味觉旅程。",
       "从晨曦初露到月上枝头，让每一盏茶，成为生活中最美的仪式。",
     ],
+    locationTitle: "门店",
+    locationSub: "我们的店铺",
+    businessHours: "营业时间",
+    googleMaps: "谷歌地图",
   },
 };
 
@@ -41,7 +49,7 @@ const NAV_HREFS = ["#top", "#concept", "#menu", "#tea-collection", "#reservation
 // ---------------------------------------------------------------------------
 // Menu data & types
 // ---------------------------------------------------------------------------
-type MenuItem = { name: string; price: number };
+type MenuItem = { name: string; nameZh: string; price: number };
 type Subgroup = { label: string; items: MenuItem[] };
 type MenuCategory = {
   category: string;
@@ -55,21 +63,21 @@ const MENU_DATA: MenuCategory[] = [
     category: "Espresso & Coffee",
     categoryZh: "浓缩咖啡",
     items: [
-      { name: "Espresso", price: 2.99 },
-      { name: "Single Shot Espresso", price: 1.50 },
-      { name: "Double Shots Espresso", price: 2.99 },
-      { name: "Americano", price: 3.99 },
-      { name: "Cappuccino", price: 5.49 },
-      { name: "Coffee Latte", price: 5.49 },
-      { name: "Vanilla Latte", price: 6.99 },
-      { name: "Pumpkin Spice Latte", price: 6.99 },
-      { name: "Hot Pumpkin Spice Latte", price: 6.99 },
-      { name: "Iced Pumpkin Spice Latte", price: 6.99 },
-      { name: "Coconut Espresso", price: 6.99 },
-      { name: "Osmanthus Oolong Coffee Latte", price: 6.99 },
-      { name: "Sicilian-inspired Citrus Espresso", price: 6.99 },
-      { name: "Peachy Oolong Americano", price: 6.99 },
-      { name: "Espresso Tonic", price: 6.99 },
+      { name: "Espresso", nameZh: "浓缩咖啡", price: 2.99 },
+      { name: "Single Shot Espresso", nameZh: "单份浓缩", price: 1.50 },
+      { name: "Double Shots Espresso", nameZh: "双份浓缩", price: 2.99 },
+      { name: "Americano", nameZh: "美式咖啡", price: 3.99 },
+      { name: "Cappuccino", nameZh: "卡布奇诺", price: 5.49 },
+      { name: "Coffee Latte", nameZh: "咖啡拿铁", price: 5.49 },
+      { name: "Vanilla Latte", nameZh: "香草拿铁", price: 6.99 },
+      { name: "Pumpkin Spice Latte", nameZh: "南瓜拿铁", price: 6.99 },
+      { name: "Hot Pumpkin Spice Latte", nameZh: "热南瓜拿铁", price: 6.99 },
+      { name: "Iced Pumpkin Spice Latte", nameZh: "冰南瓜拿铁", price: 6.99 },
+      { name: "Coconut Espresso", nameZh: "椰子浓缩", price: 6.99 },
+      { name: "Osmanthus Oolong Coffee Latte", nameZh: "桂花乌龙咖啡拿铁", price: 6.99 },
+      { name: "Sicilian-inspired Citrus Espresso", nameZh: "西西里柑橘浓缩", price: 6.99 },
+      { name: "Peachy Oolong Americano", nameZh: "蜜桃乌龙美式", price: 6.99 },
+      { name: "Espresso Tonic", nameZh: "浓缩汤力", price: 6.99 },
     ],
   },
   {
@@ -79,27 +87,27 @@ const MENU_DATA: MenuCategory[] = [
       {
         label: "Hot",
         items: [
-          { name: "Hot Matcha Latte", price: 7.79 },
-          { name: "Hot Black Sesame Matcha", price: 7.79 },
-          { name: "Coconut Matcha", price: 7.79 },
+          { name: "Hot Matcha Latte", nameZh: "热抹茶拿铁", price: 7.79 },
+          { name: "Hot Black Sesame Matcha", nameZh: "热黑芝麻抹茶", price: 7.79 },
+          { name: "Coconut Matcha", nameZh: "椰子抹茶", price: 7.79 },
         ],
       },
       {
         label: "Iced",
         items: [
-          { name: "Iced Matcha Latte", price: 7.79 },
-          { name: "Iced Strawberry Matcha Latte", price: 7.79 },
-          { name: "Iced Coconut Matcha", price: 7.79 },
-          { name: "Iced Ube Matcha Latte", price: 6.99 },
-          { name: "Iced Black Sesame Matcha", price: 7.79 },
-          { name: "Iced Matcha Cloud", price: 7.79 },
-          { name: "Matcha Latte", price: 7.79 },
-          { name: "Black Sesame Matcha", price: 7.79 },
-          { name: "Matcha Cloud", price: 6.99 },
-          { name: "Matcha Yuzu", price: 7.79 },
-          { name: "Matcha Tonic", price: 6.99 },
-          { name: "Blueberry Yuzu Matcha Tonic", price: 7.79 },
-          { name: "Iced Matcha Yuzu Fizz", price: 7.79 },
+          { name: "Iced Matcha Latte", nameZh: "冰抹茶拿铁", price: 7.79 },
+          { name: "Iced Strawberry Matcha Latte", nameZh: "冰草莓抹茶拿铁", price: 7.79 },
+          { name: "Iced Coconut Matcha", nameZh: "冰椰子抹茶", price: 7.79 },
+          { name: "Iced Ube Matcha Latte", nameZh: "冰紫薯抹茶拿铁", price: 6.99 },
+          { name: "Iced Black Sesame Matcha", nameZh: "冰黑芝麻抹茶", price: 7.79 },
+          { name: "Iced Matcha Cloud", nameZh: "冰抹茶云朵", price: 7.79 },
+          { name: "Matcha Latte", nameZh: "抹茶拿铁", price: 7.79 },
+          { name: "Black Sesame Matcha", nameZh: "黑芝麻抹茶", price: 7.79 },
+          { name: "Matcha Cloud", nameZh: "抹茶云朵", price: 6.99 },
+          { name: "Matcha Yuzu", nameZh: "抹茶柚子", price: 7.79 },
+          { name: "Matcha Tonic", nameZh: "抹茶汤力", price: 6.99 },
+          { name: "Blueberry Yuzu Matcha Tonic", nameZh: "蓝莓柚子抹茶汤力", price: 7.79 },
+          { name: "Iced Matcha Yuzu Fizz", nameZh: "冰抹茶柚子气泡", price: 7.79 },
         ],
       },
     ],
@@ -111,18 +119,18 @@ const MENU_DATA: MenuCategory[] = [
       {
         label: "Hot",
         items: [
-          { name: "Hot Hojicha Latte", price: 7.79 },
-          { name: "Hot Black Sesame Hojicha", price: 7.79 },
-          { name: "Hot Pumpkin Spice Hojicha Latte", price: 6.99 },
+          { name: "Hot Hojicha Latte", nameZh: "热焙茶拿铁", price: 7.79 },
+          { name: "Hot Black Sesame Hojicha", nameZh: "热黑芝麻焙茶", price: 7.79 },
+          { name: "Hot Pumpkin Spice Hojicha Latte", nameZh: "热南瓜焙茶拿铁", price: 6.99 },
         ],
       },
       {
         label: "Iced",
         items: [
-          { name: "Iced Hojicha Latte", price: 7.79 },
-          { name: "Iced Black Sesame Hojicha", price: 7.79 },
-          { name: "Iced Pumpkin Spice Hojicha Latte", price: 6.99 },
-          { name: "Black Sesame Hojicha", price: 7.79 },
+          { name: "Iced Hojicha Latte", nameZh: "冰焙茶拿铁", price: 7.79 },
+          { name: "Iced Black Sesame Hojicha", nameZh: "冰黑芝麻焙茶", price: 7.79 },
+          { name: "Iced Pumpkin Spice Hojicha Latte", nameZh: "冰南瓜焙茶拿铁", price: 6.99 },
+          { name: "Black Sesame Hojicha", nameZh: "黑芝麻焙茶", price: 7.79 },
         ],
       },
     ],
@@ -131,57 +139,57 @@ const MENU_DATA: MenuCategory[] = [
     category: "Oolong & Green Tea",
     categoryZh: "乌龙与绿茶",
     items: [
-      { name: "Iced Orange Peachy Oolong", price: 6.99 },
-      { name: "Hot Orange Peachy Oolong", price: 6.99 },
-      { name: "Iced Peachy Oolong Milk Tea", price: 6.99 },
-      { name: "Osmanthus Oolong Cloud", price: 6.99 },
-      { name: "Iced Yuzu Passionfruit Green Tea", price: 6.99 },
-      { name: "Hot Yuzu Passionfruit Green Tea", price: 6.99 },
-      { name: "Hot Jasmine Tropical Infusion", price: 6.99 },
+      { name: "Iced Orange Peachy Oolong", nameZh: "冰橙子蜜桃乌龙", price: 6.99 },
+      { name: "Hot Orange Peachy Oolong", nameZh: "热橙子蜜桃乌龙", price: 6.99 },
+      { name: "Iced Peachy Oolong Milk Tea", nameZh: "冰蜜桃乌龙奶茶", price: 6.99 },
+      { name: "Osmanthus Oolong Cloud", nameZh: "桂花乌龙云朵", price: 6.99 },
+      { name: "Iced Yuzu Passionfruit Green Tea", nameZh: "冰柚子百香果绿茶", price: 6.99 },
+      { name: "Hot Yuzu Passionfruit Green Tea", nameZh: "热柚子百香果绿茶", price: 6.99 },
+      { name: "Hot Jasmine Tropical Infusion", nameZh: "热茉莉热带花草茶", price: 6.99 },
     ],
   },
   {
     category: "Specialty Lattes & Others",
     categoryZh: "特色拿铁",
     items: [
-      { name: "Black Sesame Latte", price: 6.99 },
-      { name: "Blueberry Cloud Latte", price: 6.99 },
-      { name: "Iced Ube Matcha Latte", price: 6.99 },
+      { name: "Black Sesame Latte", nameZh: "黑芝麻拿铁", price: 6.99 },
+      { name: "Blueberry Cloud Latte", nameZh: "蓝莓云朵拿铁", price: 6.99 },
+      { name: "Iced Ube Matcha Latte", nameZh: "冰紫薯抹茶拿铁", price: 6.99 },
     ],
   },
   {
     category: "Pastries",
     categoryZh: "糕点",
     items: [
-      { name: "Apple Pastry", price: 5.99 },
-      { name: "Pear Pastry", price: 5.99 },
-      { name: "Orange Pastry", price: 5.99 },
-      { name: "Starlight Pastry", price: 5.99 },
-      { name: "Flower Pastry", price: 5.99 },
-      { name: "Magnolia Pastry", price: 5.99 },
-      { name: "Peanut Pastry", price: 5.99 },
-      { name: "Sesame Pocket", price: 2.99 },
+      { name: "Apple Pastry", nameZh: "苹果酥", price: 5.99 },
+      { name: "Pear Pastry", nameZh: "梨子酥", price: 5.99 },
+      { name: "Orange Pastry", nameZh: "橙子酥", price: 5.99 },
+      { name: "Starlight Pastry", nameZh: "星光酥", price: 5.99 },
+      { name: "Flower Pastry", nameZh: "花朵酥", price: 5.99 },
+      { name: "Magnolia Pastry", nameZh: "玉兰酥", price: 5.99 },
+      { name: "Peanut Pastry", nameZh: "花生酥", price: 5.99 },
+      { name: "Sesame Pocket", nameZh: "芝麻饼", price: 2.99 },
     ],
   },
   {
     category: "Desserts & Sweets",
     categoryZh: "甜点",
     items: [
-      { name: "Matcha Basque Cheesecake", price: 6.99 },
-      { name: "Egg Tart", price: 5.99 },
-      { name: "Dubai Chocolate Mochi", price: 5.99 },
-      { name: "Tea Chocolate", price: 39.00 },
+      { name: "Matcha Basque Cheesecake", nameZh: "抹茶巴斯克芝士蛋糕", price: 6.99 },
+      { name: "Egg Tart", nameZh: "蛋挞", price: 5.99 },
+      { name: "Dubai Chocolate Mochi", nameZh: "迪拜巧克力麻糬", price: 5.99 },
+      { name: "Tea Chocolate", nameZh: "茶巧克力", price: 39.00 },
     ],
   },
   {
     category: "Merchandise & Products",
     categoryZh: "周边产品",
     items: [
-      { name: "Hojicha Powder 80g", price: 30.00 },
-      { name: "Oolong Tea Lover 5g x 8 bags", price: 52.00 },
-      { name: "Yashi Flavour Oolong 50g", price: 49.00 },
-      { name: "Teamendous Bamboo Thermos Bottle", price: 29.00 },
-      { name: "Tea Ware Pouch", price: 25.00 },
+      { name: "Hojicha Powder 80g", nameZh: "焙茶粉 80克", price: 30.00 },
+      { name: "Oolong Tea Lover 5g x 8 bags", nameZh: "乌龙茶爱好者 5克×8包", price: 52.00 },
+      { name: "Yashi Flavour Oolong 50g", nameZh: "鸭屎香乌龙 50克", price: 49.00 },
+      { name: "Teamendous Bamboo Thermos Bottle", nameZh: "六时茶茗竹制保温瓶", price: 29.00 },
+      { name: "Tea Ware Pouch", nameZh: "茶具收纳包", price: 25.00 },
     ],
   },
 ];
@@ -213,10 +221,10 @@ function MenuSection({ lang }: { lang: "en" | "zh" }) {
               >
                 <div className="flex items-baseline gap-3">
                   <span className="font-monument text-white text-sm tracking-widest uppercase">
-                    {cat.category}
+                    {lang === "zh" ? cat.categoryZh : cat.category}
                   </span>
                   <span className="text-[#777777] text-xs" style={{ fontFamily: "serif" }}>
-                    {cat.categoryZh}
+                    {lang === "zh" ? cat.category : cat.categoryZh}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-[#777777] text-[10px] tracking-widest uppercase">
@@ -250,7 +258,7 @@ function MenuSection({ lang }: { lang: "en" | "zh" }) {
                       key={item.name}
                       className="flex items-center justify-between py-3 border-b border-[#111111]"
                     >
-                      <span className="text-white/80 text-xs">{item.name}</span>
+                      <span className="text-white/80 text-xs">{lang === "zh" ? item.nameZh : item.name}</span>
                       <span className="text-[#666666] text-xs">${item.price.toFixed(2)}</span>
                     </div>
                   ))}
@@ -259,14 +267,14 @@ function MenuSection({ lang }: { lang: "en" | "zh" }) {
                   {cat.subgroups?.map((sg) => (
                     <div key={sg.label}>
                       <p className="text-[#4a9e8e] text-[10px] tracking-[0.25em] uppercase pt-5 pb-2">
-                        {sg.label}
+                        {lang === "zh" ? (sg.label === "Hot" ? "热饮" : "冷饮") : sg.label}
                       </p>
                       {sg.items.map((item) => (
                         <div
                           key={item.name}
                           className="flex items-center justify-between py-3 border-b border-[#111111]"
                         >
-                          <span className="text-white/80 text-xs">{item.name}</span>
+                          <span className="text-white/80 text-xs">{lang === "zh" ? item.nameZh : item.name}</span>
                           <span className="text-[#666666] text-xs">${item.price.toFixed(2)}</span>
                         </div>
                       ))}
@@ -319,7 +327,7 @@ const TEA_COLLECTION = [
   },
 ];
 
-function TeaCollectionSection() {
+function TeaCollectionSection({ lang }: { lang: "en" | "zh" }) {
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const toggle = (category: string) =>
@@ -331,10 +339,10 @@ function TeaCollectionSection() {
         {/* Header */}
         <div className="text-center">
           <h2 className="font-monument text-white text-5xl md:text-6xl mb-4" style={{ letterSpacing: "-0.02em" }}>
-            TEA COLLECTION
+            {lang === "zh" ? "精选茶叶" : "TEA COLLECTION"}
           </h2>
           <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-3">精选茶叶</p>
-          <p className="text-[#777777] text-sm">Single-origin teas, brewed one leaf at a time.</p>
+          <p className="text-[#777777] text-sm">{lang === "zh" ? "Single-origin teas sourced from premier tea regions across China." : "Single-origin teas, brewed one leaf at a time."}</p>
         </div>
 
         {/* Two col grid */}
@@ -351,10 +359,10 @@ function TeaCollectionSection() {
                   >
                     <div className="flex items-baseline gap-3">
                       <span className="text-[#4a9e8e] text-[10px] tracking-widest uppercase">
-                        {cat.category}
+                        {lang === "zh" ? cat.categoryZh : cat.category}
                       </span>
                       <span className="text-[#555555] text-[10px] tracking-widest uppercase">
-                        {cat.categoryZh}
+                        {lang === "zh" ? cat.category : cat.categoryZh}
                       </span>
                     </div>
                     <span className="text-[#666666] text-sm">{isOpen ? "−" : "+"}</span>
@@ -371,8 +379,8 @@ function TeaCollectionSection() {
                         className="flex items-center justify-between py-3 border-b border-[#1a1a1a]"
                       >
                         <div className="flex items-baseline gap-2">
-                          <span className="text-white/80 text-sm">{item.name}</span>
-                          <span className="text-[#555555] text-xs">{item.nameZh}</span>
+                          <span className="text-white/80 text-sm">{lang === "zh" ? item.nameZh : item.name}</span>
+                          <span className="text-[#555555] text-xs">{lang === "zh" ? item.name : item.nameZh}</span>
                         </div>
                         <span className="text-[#666666] text-sm">{item.weight}</span>
                       </div>
@@ -506,7 +514,7 @@ export default function Home() {
       <MenuSection lang={lang} />
 
       {/* ── Section 4: Tea Collection ───────────────────────────────── */}
-      <TeaCollectionSection />
+      <TeaCollectionSection lang={lang} />
 
       {/* ── Section 5: Reservations ─────────────────────────────────── */}
       <div id="reservations">
@@ -518,10 +526,10 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-2">
           <h2 className="font-monument text-white text-4xl md:text-6xl tracking-widest uppercase mb-4 text-center">
-            Location
+            {t.locationTitle}
           </h2>
           <p className="font-monument text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase">
-            Our Store
+            {t.locationSub}
           </p>
         </div>
 
@@ -571,7 +579,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="text-white text-sm flex items-center gap-2 hover:text-[#4a9e8e] transition-colors justify-center md:justify-start"
             >
-              Google Maps
+              {t.googleMaps}
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                 <polyline points="15 3 21 3 21 9" />
@@ -582,7 +590,7 @@ export default function Home() {
 
           {/* Right: hours */}
           <div>
-            <p className="text-[#777777] text-[10px] tracking-widest uppercase mb-6">Business Hours</p>
+            <p className="text-[#777777] text-[10px] tracking-widest uppercase mb-6">{t.businessHours}</p>
             <div className="border-t border-[#111111] pt-6 space-y-0 mx-auto md:mx-0">
             {[
               { day: "MON", hours: "11:00 AM – 8:00 PM", closed: false },
