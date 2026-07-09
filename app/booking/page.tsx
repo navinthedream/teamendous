@@ -570,7 +570,7 @@ export function ReservationsSection({
               />
             ) : (
               <Image
-                src="/concept2.jpg"
+                src="/concept3.png"
                 alt=""
                 fill
                 className="object-cover object-center opacity-60"

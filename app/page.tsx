@@ -481,14 +481,11 @@ export default function Home() {
 
         {/* Background image */}
         <Image
-          src="/concept2.jpg"
+          src="/concept4.png"
           alt=""
           fill
           className="object-cover"
         />
-
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/60" />
 
         {/* Bottom fade to black */}
         <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent z-10" />
