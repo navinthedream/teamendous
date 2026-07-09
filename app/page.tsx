@@ -447,7 +447,7 @@ export default function Home() {
             {t.logoSub}
           </span>
           {/* Teal leaf/teardrop icon */}
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-1 animate-raindrop">
+          <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-1 animate-raindrop">
             <path d="M4 0C4 0 0 3 0 5.5C0 6.88 1.79 8 4 8C6.21 8 8 6.88 8 5.5C8 3 4 0 4 0Z" fill="#4a9e8e" />
           </svg>
         </div>
