@@ -521,7 +521,7 @@ export default function Home() {
 
       {/* ── Section 5: Reservations ─────────────────────────────────── */}
       <div id="reservations">
-        <ReservationsSection mode="preview" />
+        <ReservationsSection mode="preview" lang={lang} />
       </div>
 
       {/* ── Section 5: Location ─────────────────────────────────────── */}

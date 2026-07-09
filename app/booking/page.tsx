@@ -266,14 +266,31 @@ function SectionLabel({ number, text }: { number: number; text: string }) {
 }
 
 // ---------------------------------------------------------------------------
+const EVENT_TRANSLATIONS_ZH: Record<string, { title: string; description: string }> = {
+  "tea-gathering": {
+    title: "健康茶聚",
+    description: "在茶、温暖和有意义的对话中放慢脚步，重新联系。以传统中国茶文化为灵感，我们的茶聚体验专为亲密时刻而设计。",
+  },
+  "matcha-mat-pilates": {
+    title: "抹茶垫上普拉提",
+    description: "每周五上午8:00 · 适合初学者的全身锻炼，专为增强力量、改善姿势和提高灵活性而设计。",
+  },
+  "sip-stretch-yoga": {
+    title: "品饮伸展瑜伽",
+    description: "每周五晚上8:00 · 温和的恢复性瑜伽课程，帮助学员在繁忙的一周后释放紧张情绪、改善灵活性。",
+  },
+};
+
 // ReservationsSection — reusable, no <main> wrapper
 // ---------------------------------------------------------------------------
 export function ReservationsSection({
   mode = "full",
   initialEvent,
+  lang = "en",
 }: {
   mode?: "preview" | "full";
   initialEvent?: string;
+  lang?: "en" | "zh";
 }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -777,10 +794,12 @@ export function ReservationsSection({
                 className={`text-left p-6 border transition-colors duration-200 flex flex-col min-h-[160px] cursor-pointer ${isExpanded ? "border-white" : "border-[#222222] hover:border-[#444444]"}`}
               >
                 <div className="flex flex-col flex-1">
-                  <p className="font-monument text-white text-base font-semibold mb-1">{et.title}</p>
+                  <p className="font-monument text-white text-base font-semibold mb-1">
+                    {lang === "zh" && EVENT_TRANSLATIONS_ZH[et.slug]?.title ? EVENT_TRANSLATIONS_ZH[et.slug].title : et.title}
+                  </p>
                   <div
                     className={`text-[#cccccc] text-xs leading-relaxed overflow-hidden transition-all duration-300 ${isExpanded ? "max-h-[500px] opacity-100 mt-3" : "max-h-0 opacity-0"}`}
-                    dangerouslySetInnerHTML={{ __html: cleanDescription(et.description) }}
+                    dangerouslySetInnerHTML={{ __html: lang === "zh" && EVENT_TRANSLATIONS_ZH[et.slug]?.description ? EVENT_TRANSLATIONS_ZH[et.slug].description : cleanDescription(et.description) }}
                   />
                   {isExpanded && (
                     <div className="mt-5">
