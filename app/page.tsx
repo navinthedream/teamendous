@@ -397,10 +397,10 @@ function TeaCollectionSection({ lang }: { lang: "en" | "zh" }) {
               <span className="text-[#333333] text-xs tracking-widest uppercase">Image Coming Soon</span>
             </div>
             <div className="p-5">
-              <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-2">Coming Soon</p>
-              <p className="font-monument text-white text-lg mb-2">Jingdezhen Teaware</p>
+              <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-2">{lang === "zh" ? "即将推出" : "Coming Soon"}</p>
+              <p className="font-monument text-white text-lg mb-2">{lang === "zh" ? "景德镇茶器" : "Jingdezhen Teaware"}</p>
               <p className="text-[#666666] text-xs mb-2">来自中国景德镇的手工茶器即将上线</p>
-              <p className="text-[#888888] text-xs leading-relaxed">Handcrafted teaware from Jingdezhen, China — the porcelain capital of the world.</p>
+              <p className="text-[#888888] text-xs leading-relaxed">{lang === "zh" ? "来自中国景德镇的手工茶器——世界瓷都。" : "Handcrafted teaware from Jingdezhen, China — the porcelain capital of the world."}</p>
             </div>
           </div>
         </div>
