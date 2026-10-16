@@ -72,10 +72,15 @@ const HARDCODED_EVENT_CONTENT: Record<string, HardcodedEventContent> = {
   },
 };
 
+const EVENT_IMAGE_BY_SLUG: Record<string, string> = {
+  "sunday-morning-qigong": "/qigong-poster.jpg",
+};
+
 const INSTRUCTOR_BY_SLUG: Record<string, {
   name: string;
   credentials: string;
   bio: string;
+  image?: string;
 }> = {
   "matcha-mat-pilates": {
     name: "Perla Bashmanian",
@@ -91,6 +96,7 @@ const INSTRUCTOR_BY_SLUG: Record<string, {
     name: "Jane Lee",
     credentials: "Medical Qigong Practitioner · Yoga & Meditation Teacher",
     bio: "Jane has over 20 years of personal practice. After Qigong and holistic movement played a key role in her recovery from cancer, she transitioned from her corporate career to guide others on their path to energy balance and well-being.",
+    image: "/jane-lee.jpg",
   },
 };
 
@@ -561,6 +567,7 @@ export function ReservationsSection({
   if (mode === "full") {
     const eventContent = initialEvent ? (HARDCODED_EVENT_CONTENT[initialEvent] ?? null) : null;
     const currentEvent = displayedEventTypes[0] ?? null;
+    const heroImage = eventContent?.image ?? (initialEvent ? EVENT_IMAGE_BY_SLUG[initialEvent] : undefined);
 
     return (
       <div className="bg-black text-white flex flex-col">
@@ -570,10 +577,10 @@ export function ReservationsSection({
 
           {/* Image area */}
           <div className="w-full aspect-[16/6] bg-[#080808] relative overflow-hidden">
-            {eventContent?.image ? (
+            {heroImage ? (
               <Image
-                src={eventContent.image}
-                alt={eventContent.title}
+                src={heroImage}
+                alt={eventContent?.title ?? currentEvent?.title ?? ""}
                 fill
                 className="object-cover object-center"
                 sizes="100vw"
@@ -658,8 +665,21 @@ export function ReservationsSection({
                   return (
                     <div className="border-t border-[#1a1a1a] pt-7 mt-7">
                       <p className="text-[#aaaaaa] text-[10px] uppercase tracking-[0.25em] mb-4">Instructor</p>
-                      <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
-                      <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-3">{instructor.credentials}</p>
+                      <div className="flex items-center gap-5 mb-3">
+                        {instructor.image && (
+                          <Image
+                            src={instructor.image}
+                            alt={instructor.name}
+                            width={160}
+                            height={160}
+                            className="w-20 h-20 rounded-full object-cover border border-[#1a1a1a] flex-shrink-0"
+                          />
+                        )}
+                        <div>
+                          <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
+                          <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest">{instructor.credentials}</p>
+                        </div>
+                      </div>
                       <p className="text-[#cccccc] text-xs leading-relaxed">{instructor.bio}</p>
                     </div>
                   );
@@ -684,8 +704,21 @@ export function ReservationsSection({
                   return (
                     <div className="border-t border-[#1a1a1a] pt-7 mt-7">
                       <p className="text-[#aaaaaa] text-[10px] uppercase tracking-[0.25em] mb-4">Instructor</p>
-                      <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
-                      <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest mb-3">{instructor.credentials}</p>
+                      <div className="flex items-center gap-5 mb-3">
+                        {instructor.image && (
+                          <Image
+                            src={instructor.image}
+                            alt={instructor.name}
+                            width={160}
+                            height={160}
+                            className="w-20 h-20 rounded-full object-cover border border-[#1a1a1a] flex-shrink-0"
+                          />
+                        )}
+                        <div>
+                          <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
+                          <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest">{instructor.credentials}</p>
+                        </div>
+                      </div>
                       <p className="text-[#cccccc] text-xs leading-relaxed">{instructor.bio}</p>
                     </div>
                   );
