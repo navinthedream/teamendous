@@ -87,6 +87,11 @@ const INSTRUCTOR_BY_SLUG: Record<string, {
     credentials: "Certified Personal Trainer · Pilates Instructor · Certified Nutrition Coach",
     bio: "Passionate about helping women build strength, confidence, and sustainable healthy habits. Her approach combines movement, wellness, and community to create supportive environments where participants can improve their health, develop positive habits, and feel their best both physically and mentally. Through fitness and wellness education, she aims to help individuals build a balanced lifestyle that supports long-term health and well-being.",
   },
+  "sunday-morning-qigong": {
+    name: "Jane Lee",
+    credentials: "Medical Qigong Practitioner · Yoga & Meditation Teacher",
+    bio: "Jane has over 20 years of personal practice. After Qigong and holistic movement played a key role in her recovery from cancer, she transitioned from her corporate career to guide others on their path to energy balance and well-being.",
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -106,6 +111,7 @@ type EventType = {
   lengthInMinutes: number;
   description: string | null;
   price: number;
+  hidden?: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -278,6 +284,10 @@ const EVENT_TRANSLATIONS_ZH: Record<string, { title: string; description: string
   "sip-stretch-yoga": {
     title: "品饮伸展瑜伽",
     description: "每周五晚上8:00 · 温和的恢复性瑜伽课程，帮助学员在繁忙的一周后释放紧张情绪、改善灵活性。",
+  },
+  "sunday-morning-qigong": {
+    title: "周日晨间气功",
+    description: "每周日上午10:00 · 古老的中国养生练习，结合缓慢流畅的动作、有意识的呼吸与安静的觉察，适合所有程度。",
   },
 };
 
