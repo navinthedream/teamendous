@@ -391,9 +391,10 @@ export function ReservationsSection({
   };
 
   const calGrid = buildCalendarGrid(viewYear, viewMonth);
+  const visible = eventTypes.filter((e) => !e.hidden);
   const displayedEventTypes = initialEvent
-    ? eventTypes.filter(et => et.slug === initialEvent)
-    : eventTypes;
+    ? visible.filter(et => et.slug === initialEvent)
+    : visible;
 
   // ── Reusable booking step JSX blocks ──────────────────────────────────────
 
