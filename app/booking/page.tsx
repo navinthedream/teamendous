@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { parsePricing, calcTotal, getAmounts } from "@/lib/pricing";
+import { loadStripe } from "@stripe/stripe-js";
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 
 // ---------------------------------------------------------------------------
 // Cal.com config
@@ -142,19 +145,8 @@ function buildCalendarGrid(year: number, month: number): (Date | null)[] {
 function toDateString(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-function parsePricing(description: string | null) {
-  const match = description?.match(/\\?\[pricing:\s*base=(\d+),\s*baseGuests=(\d+),\s*perExtra=(\d+)\\?\]/);
-  if (!match) return { base: 0, baseGuests: 1, perExtra: 0 };
-  return { base: Number(match[1]), baseGuests: Number(match[2]), perExtra: Number(match[3]) };
-}
-
 function cleanDescription(description: string | null) {
   return description?.replace(/\\?\[pricing:.*?\\?\]/g, "").trim() ?? "";
-}
-
-function calcTotal(guests: number, pricing: { base: number; baseGuests: number; perExtra: number }): number {
-  if (guests <= pricing.baseGuests) return pricing.base;
-  return pricing.base + (guests - pricing.baseGuests) * pricing.perExtra;
 }
 
 // ---------------------------------------------------------------------------
@@ -225,37 +217,6 @@ async function fetchMonthAvailability(year: number, month: number, slug: string)
   return new Set(Object.keys(json?.data ?? {}));
 }
 
-async function submitBooking(
-  slot: string,
-  name: string,
-  email: string,
-  eventTypeId: number,
-  guestCount: number,
-  pricing: { base: number; baseGuests: number; perExtra: number }
-): Promise<void> {
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const res = await fetch(`${CAL_API_BASE}/bookings`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}`, "cal-api-version": BOOKINGS_API_VERSION },
-    body: JSON.stringify({
-      start: slot,
-      eventTypeId,
-      attendee: { name, email, timeZone },
-      metadata: {
-        guestCount: String(guestCount),
-        totalOwed: `$${calcTotal(guestCount, pricing)} CAD`,
-      },
-      bookingFieldsResponses: {
-        notes: `Guests: ${guestCount} · Total owed via e-transfer: $${calcTotal(guestCount, pricing)} CAD`,
-      },
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error((err as { message?: string })?.message ?? `Booking failed (${res.status})`);
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Shared sub-components
 // ---------------------------------------------------------------------------
@@ -297,6 +258,8 @@ const EVENT_TRANSLATIONS_ZH: Record<string, { title: string; description: string
   },
 };
 
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
 // ReservationsSection — reusable, no <main> wrapper
 // ---------------------------------------------------------------------------
 export function ReservationsSection({
@@ -316,7 +279,7 @@ export function ReservationsSection({
   const [eventTypesLoading, setEventTypesLoading] = useState(true);
   const [eventTypesError, setEventTypesError] = useState<string | null>(null);
 
-  const [bookingStep, setBookingStep] = useState<1 | 2 | 3 | 4>(1);
+  const [bookingStep, setBookingStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [selectedExperience, setSelectedExperience] = useState<string | null>(null);
   const [selectedEventTypeId, setSelectedEventTypeId] = useState<number | null>(null);
@@ -338,6 +301,10 @@ export function ReservationsSection({
   const [confirmed, setConfirmed] = useState(false);
   const [availableDays, setAvailableDays] = useState<Set<string>>(new Set());
   const [monthLoading, setMonthLoading] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [checkoutSessionId, setCheckoutSessionId] = useState<string | null>(null);
+  const [paymentResult, setPaymentResult] = useState<"pending" | "confirmed" | "cancelled" | "error">("pending");
+  const checkoutSessionIdRef = useRef<string | null>(null);
 
 
   useEffect(() => {
@@ -383,10 +350,61 @@ export function ReservationsSection({
     e.preventDefault();
     if (!selectedSlot || !selectedEventTypeId) return;
     setSubmitting(true); setBookingError(null);
-    try { await submitBooking(selectedSlot.start, name, email, selectedEventTypeId, guestCount, selectedPricing); setConfirmed(true); setBookingStep(4); }
-    catch (e) { setBookingError(e instanceof Error ? e.message : "Something went wrong."); }
-    finally { setSubmitting(false); }
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventTypeId: selectedEventTypeId,
+          start: selectedSlot.start,
+          name,
+          email,
+          guestCount,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setBookingError(data.error ?? "Something went wrong."); return; }
+      checkoutSessionIdRef.current = data.sessionId;
+      setCheckoutSessionId(data.sessionId);
+      setClientSecret(data.clientSecret);
+      setBookingStep(4);
+    } catch (e) {
+      setBookingError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const finalizeBookingRequest = useCallback(async () => {
+    const sessionId = checkoutSessionIdRef.current;
+    if (!sessionId) return;
+    const attempt = async () => {
+      const res = await fetch("/api/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+      });
+      const data = await res.json() as { status: string };
+      return data.status;
+    };
+    try {
+      const status = await attempt();
+      if (status === "confirmed") { setPaymentResult("confirmed"); setConfirmed(true); }
+      else if (status === "cancelled") { setPaymentResult("cancelled"); }
+      else { setPaymentResult("error"); }
+    } catch {
+      await new Promise(r => setTimeout(r, 2000));
+      try {
+        const status = await attempt();
+        if (status === "confirmed") { setPaymentResult("confirmed"); setConfirmed(true); }
+        else if (status === "cancelled") { setPaymentResult("cancelled"); }
+        else { setPaymentResult("error"); }
+      } catch {
+        setPaymentResult("error");
+      }
+    }
+  }, []);
 
   const resetAll = () => {
     setConfirmed(false); setSelectedDate(null); setSelectedSlot(null); setSlots([]);
@@ -394,6 +412,8 @@ export function ReservationsSection({
     setSelectedEventTypeId(null); setSelectedEventLength(120);
     setSelectedPricing({ base: 0, baseGuests: 1, perExtra: 0 });
     setAvailableDays(new Set()); setExpandedCard(null); setBookingStep(1);
+    setClientSecret(null); setCheckoutSessionId(null); checkoutSessionIdRef.current = null;
+    setPaymentResult("pending");
   };
 
   const handleBack = () => {
@@ -403,6 +423,9 @@ export function ReservationsSection({
     } else if (bookingStep === 3) {
       setSelectedSlot(null); setBookingError(null);
       setBookingStep(2);
+    } else if (bookingStep === 4) {
+      setClientSecret(null); setCheckoutSessionId(null); checkoutSessionIdRef.current = null;
+      setBookingStep(3);
     }
   };
 
@@ -483,6 +506,8 @@ export function ReservationsSection({
     </>
   );
 
+  const amounts = getAmounts(selectedPricing, guestCount, !!selectedSlot?.seatsTotal);
+
   const detailsFormBlock = selectedSlot && !confirmed && (
     <form onSubmit={handleBookingSubmit} className="flex flex-col gap-6 w-full">
       <div>
@@ -517,16 +542,17 @@ export function ReservationsSection({
           {selectedSlot?.seatsTotal && (
             <p className="text-[#bbbbbb] text-[10px]">Per person · each guest books individually</p>
           )}
+          <p className="text-[#bbbbbb] text-[10px]">+ HST (13%) ${(amounts.hstCents / 100).toFixed(2)}</p>
         </div>
         <p className="text-white text-3xl font-light">
-          ${selectedSlot?.seatsTotal ? selectedPricing.base : calcTotal(guestCount, selectedPricing)}
+          ${(amounts.totalCents / 100).toFixed(2)}
           <span className="text-[#cccccc] text-sm font-normal"> CAD</span>
         </p>
       </div>
       {bookingError && <p className="text-red-500 text-xs">{bookingError}</p>}
       <button type="submit" disabled={submitting}
         className="w-full bg-[#4a9e8e] text-black text-sm font-semibold tracking-[0.1em] uppercase py-4 hover:bg-white transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed">
-        {submitting ? "Confirming…" : "Confirm Reservation"}
+        {submitting ? "Preparing payment…" : "Continue to Payment"}
       </button>
     </form>
   );
@@ -546,15 +572,13 @@ export function ReservationsSection({
         ))}
         <div className="flex justify-between text-sm border-t border-[#1a1a1a] pt-4">
           <span className="text-[#aaaaaa]">Total</span>
-          <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span>
+          <span className="text-white">${(amounts.totalCents / 100).toFixed(2)} CAD</span>
         </div>
       </div>
       <div className="border border-[#1a1a1a] p-6 mb-8 w-full max-w-sm">
-        <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Complete Your Reservation</p>
+        <p className="font-monument text-[#4a9e8e] text-[11px] tracking-[0.2em] uppercase mb-3">Payment Received</p>
         <p className="text-[#cccccc] text-xs leading-relaxed">
-          Send <span className="text-white">${calcTotal(guestCount, selectedPricing)} CAD</span> via e-transfer to{" "}
-          <span className="text-[#4a9e8e]">teamendoustoronto@gmail.com</span> to secure your booking.
-          Confirmation sent to <span className="text-white">{email}</span>.
+          Paid <span className="text-white">${(amounts.totalCents / 100).toFixed(2)} CAD incl. HST</span>. Your confirmation and receipt are on their way to <span className="text-white">{email}</span>.
         </p>
       </div>
       <button onClick={resetAll} className="text-xs text-[#cccccc] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
@@ -731,10 +755,10 @@ export function ReservationsSection({
         {/* ── BOTTOM SECTION: Booking steps ────────────────────────────── */}
         <div className="w-full flex flex-col max-w-3xl mx-auto">
 
-          {/* Progress bar — 3 segments, filled up to current step */}
-          {bookingStep < 4 && (
+          {/* Progress bar — 4 segments, filled up to current step */}
+          {bookingStep < 5 && (
             <div className="flex gap-1 px-8 pt-4 pb-0">
-              {([1, 2, 3] as const).map(n => (
+              {([1, 2, 3, 4] as const).map(n => (
                 <div
                   key={n}
                   className={`h-px flex-1 transition-colors duration-500 ${bookingStep >= n ? "bg-[#4a9e8e]" : "bg-[#1a1a1a]"}`}
@@ -797,10 +821,55 @@ export function ReservationsSection({
             </div>
           )}
 
-          {/* Step 4: Confirmation */}
-          {bookingStep === 4 && confirmed && selectedDate && selectedSlot && (
+          {/* Step 4: Payment */}
+          {bookingStep === 4 && clientSecret && (
+            <div className="px-8 py-10">
+              <div className="flex items-center justify-between mb-8">
+                <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Payment</p>
+                <button
+                  onClick={handleBack}
+                  className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 5l-7 7 7 7" />
+                  </svg>
+                  Back
+                </button>
+              </div>
+              <EmbeddedCheckoutProvider
+                key={clientSecret}
+                stripe={stripePromise}
+                options={{
+                  fetchClientSecret: () => Promise.resolve(clientSecret),
+                  onComplete: () => { setBookingStep(5); finalizeBookingRequest(); },
+                }}
+              >
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+            </div>
+          )}
+
+          {/* Step 5: Confirmation */}
+          {bookingStep === 5 && (
             <div className="px-8 py-16 flex flex-col items-center text-center">
-              {confirmationBlock}
+              {paymentResult === "pending" && (
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[#aaaaaa] text-xs tracking-widest">Finalizing your booking…</span>
+                </div>
+              )}
+              {paymentResult === "cancelled" && (
+                <>
+                  <p className="text-[#cccccc] text-sm leading-relaxed mb-8">That time was just taken. Your card was not charged.</p>
+                  <button onClick={resetAll} className="text-xs text-[#cccccc] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
+                    Book another time
+                  </button>
+                </>
+              )}
+              {(paymentResult === "confirmed") && confirmationBlock}
+              {paymentResult === "error" && (
+                <p className="text-[#cccccc] text-sm leading-relaxed">We couldn&apos;t finish your booking and your card has not been charged. Please try again or contact <span className="text-white">teamendoustoronto@gmail.com</span>.</p>
+              )}
             </div>
           )}
         </div>
