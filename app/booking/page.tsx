@@ -103,6 +103,77 @@ const INSTRUCTOR_BY_SLUG: Record<string, {
   },
 };
 
+type LandingContent = {
+  eyebrow: string;
+  title: string;
+  cta: string;
+  heroImage?: string;
+  heroVideo?: string;
+  intro: { heading: string; text: string; images: string[] };
+  approach: { heading: string; text: string };
+  features: { icon: "flow" | "tea" | "leaf"; title: string; text: string }[];
+  galleryImages: (string | undefined)[];
+  practice: { heading: string; text: string };
+  session: { heading: string; intro: string; name: string; description: string; location: string };
+  expect: { heading: string; intro: string; paragraphs: string[]; disclaimer: string };
+  faq: { heading: string; subheading: string; items: { q: string; a: string }[] };
+};
+
+const LANDING_CONTENT_BY_SLUG: Record<string, LandingContent> = {
+  "sunday-morning-qigong": {
+    eyebrow: "Tea & Qi · A Morning Practice",
+    title: "Qigong at Teamendous",
+    cta: "Book Your Spot",
+    heroVideo: "/qigong-desktop-ultrawide.mp4",
+    intro: {
+      heading: "What is Qigong?",
+      text: "Qigong (pronounced \"chee-gong\") is an ancient Chinese practice that weaves together slow, flowing movement, conscious breathing, and quiet awareness. Practiced for thousands of years, it is a way of cultivating balance — in body, breath, and mind. Research suggests a regular practice may support emotional wellbeing, restful sleep, balance, and overall quality of life.",
+      images: ["/qigong-1.JPG", "/qigong-2.JPG", "/qigong-3.JPG"],
+    },
+    approach: {
+      heading: "Our Approach",
+      text: "At Teamendous, you receive more than just a class: our sessions are guided step by step by Jane Lee, and every movement is adapted to the group in the moment — no experience needed, no flexibility required. Each guest is welcomed with a pot of tea and a small snack, and the practice closes with quiet time together over tea.",
+    },
+    features: [
+      { icon: "flow", title: "Guided for All Levels", text: "Every movement is demonstrated step by step and adjusted in real time to suit your body. First-timers and returning practitioners all practice at their own pace." },
+      { icon: "tea", title: "Tea & Qi", text: "The warmth of tea and the slowness of qigong belong together. You'll leave feeling calm, grounded, and refreshed." },
+      { icon: "leaf", title: "Whole-Body Flow", text: "Gentle, continuous movements travel from the neck and shoulders to the spine, hips, and legs — easing tension and leaving the body feeling light and open." },
+    ],
+    galleryImages: ["/qigong-4.JPG", "/qigong-5.jpg", "/qigong-6.jpg"],
+    practice: {
+      heading: "What We Practice",
+      text: "From the neck and shoulders to the spine, hips, and legs, qigong moves the whole body as one continuous flow. Jane selects a sequence suited to the group on the day, so each session meets you where you are.",
+    },
+    session: {
+      heading: "Choose Your Session",
+      intro: "Reserve your spot for {price} per person — the full one-hour guided practice, a pot of tea, and a small snack included.",
+      name: "Morning Qigong",
+      description: "A one-hour guided practice with Jane Lee, open to all levels.",
+      location: "Teamendous · 10 Karl Fraser Road, Toronto",
+    },
+    expect: {
+      heading: "What to Expect",
+      intro: "Your qigong session at **Teamendous** is designed to be **calm, unhurried, and welcoming**.",
+      paragraphs: [
+        "At the beginning of your visit, **Bobo** will briefly share the intention behind this workshop and introduce **Jane Lee**, who leads the practice.",
+        "The session opens with **gentle warm-up movements**, then flows into the main sequence — **slow, continuous movements coordinated with the breath**, guided step by step. During the practice, you may notice warmth spreading through the body, deeper and easier breathing, and a quieting of the mind. Every movement can be **scaled to your comfort**.",
+        "After the practice, we close with tea and conversation. Many guests describe feeling **calmer, lighter, and more grounded** — and taking a little of that stillness home.",
+      ],
+      disclaimer: "Qigong is a wellness practice, not a medical treatment. If you have a health condition, please check with your healthcare provider before joining.",
+    },
+    faq: {
+      heading: "FAQ",
+      subheading: "Something else on your mind? Contact us at teamendoustoronto@gmail.com — we're happy to help.",
+      items: [
+        { q: "How often should I practice qigong?", a: "Even ten quiet minutes a day can make a difference. Many people start with one guided session a week and build a short home practice from there." },
+        { q: "Do I need any experience?", a: "None at all. Every movement is demonstrated step by step, and Jane adapts the practice to the group." },
+        { q: "Is qigong safe for beginners?", a: "Qigong is low-impact and adaptable; movements are slow and can be done seated or standing. If you have a health condition, check with your healthcare provider first." },
+        { q: "Will I feel a difference after one session?", a: "Many people notice a sense of calm and ease right away. Deeper benefits — steadier sleep, a quieter mind — tend to build with regular practice." },
+      ],
+    },
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -253,12 +324,18 @@ const EVENT_TRANSLATIONS_ZH: Record<string, { title: string; description: string
     description: "每周五晚上8:00 · 温和的恢复性瑜伽课程，帮助学员在繁忙的一周后释放紧张情绪、改善灵活性。",
   },
   "sunday-morning-qigong": {
-    title: "周日晨间气功",
-    description: "每周日上午10:00 · 古老的中国养生练习，结合缓慢流畅的动作、有意识的呼吸与安静的觉察，适合所有程度。",
+    title: "晨间气功",
+    description: "古老的中国养生练习，结合缓慢流畅的动作、有意识的呼吸与安静的觉察，适合所有程度。",
   },
 };
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+function renderBold(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+    i % 2 === 1 ? <strong key={i} className="text-white font-semibold">{part}</strong> : part
+  );
+}
 
 // ReservationsSection — reusable, no <main> wrapper
 // ---------------------------------------------------------------------------
@@ -305,6 +382,7 @@ export function ReservationsSection({
   const [checkoutSessionId, setCheckoutSessionId] = useState<string | null>(null);
   const [paymentResult, setPaymentResult] = useState<"pending" | "confirmed" | "cancelled" | "error">("pending");
   const checkoutSessionIdRef = useRef<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -592,6 +670,341 @@ export function ReservationsSection({
     const eventContent = initialEvent ? (HARDCODED_EVENT_CONTENT[initialEvent] ?? null) : null;
     const currentEvent = displayedEventTypes[0] ?? null;
     const heroImage = eventContent?.image ?? (initialEvent ? EVENT_IMAGE_BY_SLUG[initialEvent] : undefined);
+    const landing = initialEvent ? LANDING_CONTENT_BY_SLUG[initialEvent] : undefined;
+
+    const bookingSteps = (
+      <div className="w-full flex flex-col max-w-3xl mx-auto">
+
+        {/* Progress bar — 4 segments, filled up to current step */}
+        {bookingStep < 5 && (
+          <div className="flex gap-1 px-8 pt-4 pb-0">
+            {([1, 2, 3, 4] as const).map(n => (
+              <div
+                key={n}
+                className={`h-px flex-1 transition-colors duration-500 ${bookingStep >= n ? "bg-[#4a9e8e]" : "bg-[#1a1a1a]"}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Loading while event types resolve */}
+        {(eventTypesLoading || (!selectedExperience && !eventTypesError)) && bookingStep === 1 && (
+          <div className="px-8 lg:px-12 py-16 flex items-center gap-3">
+            <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
+            <span className="text-[#aaaaaa] text-xs tracking-widest">Loading availability…</span>
+          </div>
+        )}
+
+        {/* Step 1: Select Date */}
+        {bookingStep === 1 && selectedExperience && (
+          <div className="px-8 py-10 flex flex-col flex-1 justify-center">
+            <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase mb-10">Select Date</p>
+            {calendarBlock}
+        </div>
+        )}
+
+        {/* Step 2: Select Time */}
+        {bookingStep === 2 && (
+          <div className="px-8 py-10">
+            <div className="flex items-center justify-between mb-6">
+              <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Select Time</p>
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                Back
+              </button>
+            </div>
+            {timeSlotsBlock}
+          </div>
+        )}
+
+        {/* Step 3: Your Details */}
+        {bookingStep === 3 && (
+          <div className="px-8 py-10">
+            <div className="flex items-center justify-between mb-8">
+              <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Your Details</p>
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                Back
+              </button>
+            </div>
+            {detailsFormBlock}
+          </div>
+        )}
+
+        {/* Step 4: Payment */}
+        {bookingStep === 4 && clientSecret && (
+          <div className="px-8 py-10">
+            <div className="flex items-center justify-between mb-8">
+              <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Payment</p>
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5M12 5l-7 7 7 7" />
+                </svg>
+                Back
+              </button>
+            </div>
+            <EmbeddedCheckoutProvider
+              key={clientSecret}
+              stripe={stripePromise}
+              options={{
+                fetchClientSecret: () => Promise.resolve(clientSecret),
+                onComplete: () => { setBookingStep(5); finalizeBookingRequest(); },
+              }}
+            >
+              <EmbeddedCheckout />
+            </EmbeddedCheckoutProvider>
+          </div>
+        )}
+
+        {/* Step 5: Confirmation */}
+        {bookingStep === 5 && (
+          <div className="px-8 py-16 flex flex-col items-center text-center">
+            {paymentResult === "pending" && (
+              <div className="flex items-center gap-3">
+                <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
+                <span className="text-[#aaaaaa] text-xs tracking-widest">Finalizing your booking…</span>
+              </div>
+            )}
+            {paymentResult === "cancelled" && (
+              <>
+                <p className="text-[#cccccc] text-sm leading-relaxed mb-8">That time was just taken. Your card was not charged.</p>
+                <button onClick={resetAll} className="text-xs text-[#cccccc] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
+                  Book another time
+                </button>
+              </>
+            )}
+            {(paymentResult === "confirmed") && confirmationBlock}
+            {paymentResult === "error" && (
+              <p className="text-[#cccccc] text-sm leading-relaxed">We couldn&apos;t finish your booking and your card has not been charged. Please try again or contact <span className="text-white">teamendoustoronto@gmail.com</span>.</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+
+    if (landing) {
+      const instructor = initialEvent ? INSTRUCTOR_BY_SLUG[initialEvent] : undefined;
+      const priceLabel = selectedPricing.base > 0 ? `$${selectedPricing.base} + HST` : "the listed price";
+      return (
+        <div className="bg-black text-white flex flex-col">
+          {/* Hero */}
+          <section className="relative w-full aspect-video max-h-[90vh] min-h-[420px] overflow-hidden">
+            {landing.heroVideo ? (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                poster={landing.heroImage}
+                className="absolute inset-0 w-full h-full object-cover object-center opacity-50"
+              >
+                <source src={landing.heroVideo} type="video/mp4" />
+              </video>
+            ) : (
+              <Image src={landing.heroImage ?? "/concept3.png"} alt="" fill className="object-cover object-center opacity-50" sizes="100vw" priority />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black" />
+            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-8">
+              <p className="text-[#4a9e8e] text-[10px] tracking-[0.3em] uppercase mb-5">{landing.eyebrow}</p>
+              <h1 className="font-monument text-white text-4xl md:text-6xl font-bold mb-10" style={{ letterSpacing: "-0.01em" }}>{landing.title}</h1>
+              <button
+                onClick={() => document.getElementById("book")?.scrollIntoView({ behavior: "smooth" })}
+                className="inline-block px-8 py-4 bg-[#4a9e8e] text-black text-xs font-semibold tracking-[0.15em] uppercase hover:bg-white transition-colors duration-200"
+              >
+                {landing.cta}
+              </button>
+            </div>
+          </section>
+
+          {/* Intro */}
+          <section className="w-full border-t border-[#1a1a1a]">
+            <div className="max-w-3xl mx-auto px-8 py-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div>
+                  <h2 className="font-monument text-white text-2xl lg:text-3xl font-bold mb-6">{landing.intro.heading}</h2>
+                  <p className="text-[#bbbbbb] text-sm leading-relaxed">{landing.intro.text}</p>
+                </div>
+                <div className="grid grid-cols-2 grid-rows-2 gap-3 aspect-[4/5] w-full">
+                  <div className="row-span-2 relative w-full h-full overflow-hidden">
+                    <Image src={landing.intro.images[0]} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" alt="" />
+                  </div>
+                  <div className="relative w-full h-full overflow-hidden">
+                    <Image src={landing.intro.images[1]} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" alt="" />
+                  </div>
+                  <div className="relative w-full h-full overflow-hidden">
+                    <Image src={landing.intro.images[2]} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" alt="" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Approach & Features */}
+          <section className="w-full border-t border-[#1a1a1a]">
+            <div className="max-w-3xl mx-auto px-8 py-16">
+              <h2 className="font-monument text-white text-2xl lg:text-3xl font-bold mb-6">{landing.approach.heading}</h2>
+              <p className="text-[#bbbbbb] text-sm leading-relaxed">{landing.approach.text}</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10">
+                {landing.features.map((f, i) => (
+                  <div key={i} className="flex flex-col items-center text-center">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a9e8e" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="mb-4">
+                      {f.icon === "flow" ? (
+                        <>
+                          <path d="M3 9c3-3 6-3 9 0s6 3 9 0" />
+                          <path d="M3 15c3-3 6-3 9 0s6 3 9 0" />
+                        </>
+                      ) : f.icon === "tea" ? (
+                        <>
+                          <path d="M4 10h12v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-3z" />
+                          <path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16" />
+                          <path d="M8 4c0 1.5 1 1.5 1 3M12 4c0 1.5 1 1.5 1 3" />
+                        </>
+                      ) : (
+                        <>
+                          <path d="M12 21v-8" /><path d="M12 13c0-4 3-7 8-7 0 5-3 8-8 7z" /><path d="M12 15c0-3-2-5-6-5 0 4 2 6 6 5z" />
+                        </>
+                      )}
+                    </svg>
+                    <p className="font-monument text-white text-sm tracking-widest uppercase mb-2">{f.title}</p>
+                    <p className="text-[#bbbbbb] text-sm leading-relaxed">{f.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Practice */}
+          <section className="w-full border-t border-[#1a1a1a]">
+            <div className="max-w-3xl mx-auto px-8 py-16">
+              <h2 className="font-monument text-white text-2xl lg:text-3xl font-bold mb-6">{landing.practice.heading}</h2>
+              <p className="text-[#bbbbbb] text-sm leading-relaxed">{landing.practice.text}</p>
+            </div>
+          </section>
+
+          {/* Instructor */}
+          {instructor && (
+            <section className="w-full border-t border-[#1a1a1a]">
+              <div className="max-w-3xl mx-auto px-8 py-16">
+                <p className="text-[#aaaaaa] text-[10px] uppercase tracking-[0.25em] mb-4">Instructor</p>
+                <div className="flex items-center gap-5 mb-3">
+                  {instructor.image && (
+                    <Image
+                      src={instructor.image}
+                      alt={instructor.name}
+                      width={160}
+                      height={160}
+                      className="w-20 h-20 rounded-full object-cover border border-[#1a1a1a] flex-shrink-0"
+                    />
+                  )}
+                  <div>
+                    <p className="font-monument text-white text-sm mb-1">{instructor.name}</p>
+                    <p className="text-[#4a9e8e] text-[10px] uppercase tracking-widest">{instructor.credentials}</p>
+                  </div>
+                </div>
+                <p className="text-[#cccccc] text-xs leading-relaxed">{instructor.bio}</p>
+              </div>
+            </section>
+          )}
+
+          {/* Session / Book */}
+          <section id="book" className="w-full border-t border-[#1a1a1a] scroll-mt-14">
+            <div className="max-w-3xl mx-auto px-8 pt-16">
+              <h2 className="font-monument text-white text-2xl lg:text-3xl font-bold mb-6">{landing.session.heading}</h2>
+              <p className="text-[#bbbbbb] text-sm leading-relaxed mb-8">{landing.session.intro.replace("{price}", priceLabel)}</p>
+              <div className="border border-[#222222] p-6">
+                <p className="font-monument text-white text-base font-semibold mb-1">{landing.session.name}</p>
+                <p className="text-[#bbbbbb] text-sm leading-relaxed">{landing.session.description}</p>
+                <div className="flex items-center justify-between mt-5">
+                  <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">{currentEvent?.lengthInMinutes} min</span>
+                  <span className="text-[#4a9e8e] text-xs tracking-widest uppercase">${selectedPricing.base} + HST</span>
+                </div>
+                <p className="text-[#888888] text-xs mt-3">{landing.session.location}</p>
+              </div>
+            </div>
+            {bookingSteps}
+            <div className="pb-8" />
+          </section>
+
+          {/* Expect */}
+          <section className="w-full border-t border-[#1a1a1a]">
+            <div className="max-w-5xl mx-auto px-8 py-16">
+              <div className="border border-[#2a2a2a] rounded-2xl p-3">
+                <div className="bg-[#0a0a0a] rounded-xl px-8 py-10 md:px-14 md:py-14 grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-10">
+                  <div>
+                    <h2 className="font-monument text-white text-3xl md:text-5xl font-light leading-tight">
+                      {landing.expect.heading}
+                    </h2>
+                    <div className="w-12 h-px bg-[#4a9e8e] mt-8" />
+                  </div>
+                  <div className="flex flex-col gap-5">
+                    <p className="text-[#bbbbbb] text-sm leading-relaxed">{renderBold(landing.expect.intro)}</p>
+                    {landing.expect.paragraphs.map((p, i) => (
+                      <p key={i} className="text-[#bbbbbb] text-sm leading-relaxed">{renderBold(p)}</p>
+                    ))}
+                    <p className="text-[#888888] text-xs italic mt-2">{landing.expect.disclaimer}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* FAQ */}
+          <section className="w-full border-t border-[#1a1a1a]">
+            <div className="max-w-5xl mx-auto px-8 py-16 flex flex-wrap gap-x-16 gap-y-10">
+              <div className="flex-[1_1_18rem]">
+                <h2 className="font-monument text-white text-4xl md:text-6xl font-light">{landing.faq.heading}</h2>
+                {(() => {
+                  const [before, after] = landing.faq.subheading.split("Contact us");
+                  return (
+                    <p className="text-[#bbbbbb] text-sm leading-relaxed mt-4">
+                      {before}
+                      {after !== undefined && (
+                        <a href="mailto:teamendoustoronto@gmail.com" className="text-[#4a9e8e] underline underline-offset-4 hover:text-white transition-colors">Contact us</a>
+                      )}
+                      {after}
+                    </p>
+                  );
+                })()}
+              </div>
+              <div className="flex-[1.3_1_26rem] min-w-0">
+                {landing.faq.items.map((item, i) => {
+                  const isOpen = openFaq === i;
+                  return (
+                    <div key={item.q}>
+                      <button
+                        onClick={() => setOpenFaq(isOpen ? null : i)}
+                        className="w-full flex items-center justify-between gap-6 py-5 text-left"
+                      >
+                        <span className="text-white text-xs md:text-sm tracking-widest uppercase">{item.q}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                          className={`text-[#bbbbbb] flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
+                          <path d="M12 5v14M5 12h14" />
+                        </svg>
+                      </button>
+                      {isOpen && <p className="text-[#bbbbbb] text-sm leading-relaxed pb-5 pr-10">{item.a}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
 
     return (
       <div className="bg-black text-white flex flex-col">
@@ -752,127 +1165,7 @@ export function ReservationsSection({
           </div>
         </div>
 
-        {/* ── BOTTOM SECTION: Booking steps ────────────────────────────── */}
-        <div className="w-full flex flex-col max-w-3xl mx-auto">
-
-          {/* Progress bar — 4 segments, filled up to current step */}
-          {bookingStep < 5 && (
-            <div className="flex gap-1 px-8 pt-4 pb-0">
-              {([1, 2, 3, 4] as const).map(n => (
-                <div
-                  key={n}
-                  className={`h-px flex-1 transition-colors duration-500 ${bookingStep >= n ? "bg-[#4a9e8e]" : "bg-[#1a1a1a]"}`}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Loading while event types resolve */}
-          {(eventTypesLoading || (!selectedExperience && !eventTypesError)) && bookingStep === 1 && (
-            <div className="px-8 lg:px-12 py-16 flex items-center gap-3">
-              <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
-              <span className="text-[#aaaaaa] text-xs tracking-widest">Loading availability…</span>
-            </div>
-          )}
-
-          {/* Step 1: Select Date */}
-          {bookingStep === 1 && selectedExperience && (
-            <div className="px-8 py-10 flex flex-col flex-1 justify-center">
-              <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase mb-10">Select Date</p>
-              {calendarBlock}
-            </div>
-          )}
-
-          {/* Step 2: Select Time */}
-          {bookingStep === 2 && (
-            <div className="px-8 py-10">
-              <div className="flex items-center justify-between mb-6">
-                <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Select Time</p>
-                <button
-                  onClick={handleBack}
-                  className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5M12 5l-7 7 7 7" />
-                  </svg>
-                  Back
-                </button>
-              </div>
-              {timeSlotsBlock}
-            </div>
-          )}
-
-          {/* Step 3: Your Details */}
-          {bookingStep === 3 && (
-            <div className="px-8 py-10">
-              <div className="flex items-center justify-between mb-8">
-                <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Your Details</p>
-                <button
-                  onClick={handleBack}
-                  className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5M12 5l-7 7 7 7" />
-                  </svg>
-                  Back
-                </button>
-              </div>
-              {detailsFormBlock}
-            </div>
-          )}
-
-          {/* Step 4: Payment */}
-          {bookingStep === 4 && clientSecret && (
-            <div className="px-8 py-10">
-              <div className="flex items-center justify-between mb-8">
-                <p className="font-monument text-[#aaaaaa] text-[11px] tracking-[0.25em] uppercase">Payment</p>
-                <button
-                  onClick={handleBack}
-                  className="flex items-center gap-1.5 text-[#bbbbbb] hover:text-white text-[10px] uppercase tracking-widest transition-colors"
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 12H5M12 5l-7 7 7 7" />
-                  </svg>
-                  Back
-                </button>
-              </div>
-              <EmbeddedCheckoutProvider
-                key={clientSecret}
-                stripe={stripePromise}
-                options={{
-                  fetchClientSecret: () => Promise.resolve(clientSecret),
-                  onComplete: () => { setBookingStep(5); finalizeBookingRequest(); },
-                }}
-              >
-                <EmbeddedCheckout />
-              </EmbeddedCheckoutProvider>
-            </div>
-          )}
-
-          {/* Step 5: Confirmation */}
-          {bookingStep === 5 && (
-            <div className="px-8 py-16 flex flex-col items-center text-center">
-              {paymentResult === "pending" && (
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 border border-[#4a9e8e] border-t-transparent rounded-full animate-spin" />
-                  <span className="text-[#aaaaaa] text-xs tracking-widest">Finalizing your booking…</span>
-                </div>
-              )}
-              {paymentResult === "cancelled" && (
-                <>
-                  <p className="text-[#cccccc] text-sm leading-relaxed mb-8">That time was just taken. Your card was not charged.</p>
-                  <button onClick={resetAll} className="text-xs text-[#cccccc] hover:text-white transition-colors tracking-widest uppercase underline underline-offset-4">
-                    Book another time
-                  </button>
-                </>
-              )}
-              {(paymentResult === "confirmed") && confirmationBlock}
-              {paymentResult === "error" && (
-                <p className="text-[#cccccc] text-sm leading-relaxed">We couldn&apos;t finish your booking and your card has not been charged. Please try again or contact <span className="text-white">teamendoustoronto@gmail.com</span>.</p>
-              )}
-            </div>
-          )}
-        </div>
+        {bookingSteps}
       </div>
     );
   }
